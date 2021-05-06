@@ -50,6 +50,7 @@ void main() async {
   print(student);
   // Код ниже автоматически вызывает метод toJson у
   // передаваемого на вход экземпляра класса Student
+  myFile.createSync(recursive: true);
   var encoder = JsonEncoder.withIndent('  ');
   myFile.writeAsStringSync(encoder.convert(student));
   print(myFile.readAsStringSync());
