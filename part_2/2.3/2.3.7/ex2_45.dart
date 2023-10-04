@@ -1,16 +1,13 @@
-enum DoorCommand {none, open, close, prepare}
-
 void main(List<String> arguments) {
-  var command = DoorCommand.open;
+  var command = 'open';
   switch (command) {
     prepare:
-    case DoorCommand.prepare:
+    case 'prepare':
       print('prepare'); // 2 <- prepare
-      break;
-    case DoorCommand.close:
+    case 'close':
       print('closed');
       continue prepare;
-    case DoorCommand.open:
+    case 'open':
       print('open'); // 1 <- open
       continue prepare;
     default:

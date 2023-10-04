@@ -5,7 +5,7 @@ void main(List<String> arguments) {
   if (a > b) {
     print('a > b');
   } else if (a > c){
-    print('a > c'); // <- a > c
+    print('a > c'); // a > c
   }
   else{
     print('Ни то и ни другое');

@@ -1,9 +1,11 @@
-void main(List<String> arguments) {
-var str = '';
+
+void main() {
+  var str = '';
   var i = 0;
   for(; i <= 4;){
     str += i.toString();
     i++;
   }
-  print(str); 
+  print(str); // 01234
+
 }

@@ -1,11 +1,13 @@
-void main(List<String> arguments) {
-    mainLoop: for(var i = 0; i< 3; i++){ // метка «mainLoop:»
+void main() {
+  mainLoop:
+  for (var i = 0; i < 3; i++) {
+    // метка «mainLoop:»
     print('start main loop');
-    for(var x = 0; x < 3; x++){
+    for (var x = 0; x < 3; x++) {
       print('start second loop');
-      for(var y = 0; y< 3; y++){
+      for (var y = 0; y < 3; y++) {
         print('start external loop');
-        if (y >= 1){
+        if (y >= 1) {
           print('break external loop');
           break mainLoop;
         }

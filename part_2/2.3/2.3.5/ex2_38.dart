@@ -1,14 +1,15 @@
-void main(List<String> arguments) {
+
+void main() {
   var myStr = 'Hi!';
   var i = 0;
-  while(i < myStr.length){
+  while (i < myStr.length) {
     print(myStr[i]); // H i !
     i++;
   }
 
   i = 0;
-  do{
+  do {
     print(i); // 0  1  2
     i++;
-  }while(i < 3);
+  } while (i < 3);
 }
