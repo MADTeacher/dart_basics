@@ -1,0 +1,50 @@
+{
+    "name": "Prevozmogun",
+    "budget": 2000000,
+    "actors": [
+        {
+            "name": "Alexey",
+            "age": 25,
+            "filmsAmount": 3,
+            "aboutActor": "2 academy awards"
+        },
+        {
+            "name": "Max",
+            "age": 33,
+            "filmsAmount": 2,
+            "aboutActor": null
+        },
+        {
+            "name": "Natalya",
+            "age": 18,
+            "filmsAmount": 1,
+            "aboutActor": "Rising star"
+        }
+    ],
+    "criticsRating": 7.5,
+    "audienceRating": 8.5,
+    "year": 2019,
+    "country": "Russia",
+    "genre": [
+        "Comedy",
+        "Drama",
+        "Romance"
+    ],
+    "reviews": [
+        {
+            "name": "Igor",
+            "text": null,
+            "rating": 10.0
+        },
+        {
+            "name": "John",
+            "text": "I hate this movie",
+            "rating": 1.0
+        },
+        {
+            "name": "Stas",
+            "text": "I like this movie",
+            "rating": 7.0
+        }
+    ]
+}
