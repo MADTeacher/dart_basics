@@ -1,0 +1,4 @@
+0,MADTeacher,1989,stasko@gmail.ru,+7xxxxxxx,T,adFF
+1,Alex,1990,al@gmail.ru,+7x2x5xxx,A,adadFFxzxc
+2,Max,2005,mmm@gmail.ru,+7xx654xx,S,20AFBB
+3,Jack,2006,jj@gmail.ru,+7xx657xx,S,41FDF
