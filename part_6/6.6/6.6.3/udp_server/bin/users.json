@@ -1,0 +1,26 @@
+[
+  {
+    "id": 2,
+    "name": "Petr Petrov",
+    "age": 25,
+    "education": "Bachelor"
+  },
+  {
+    "id": 3,
+    "name": "Sidor Sidorov",
+    "age": 18,
+    "education": "Secondary"
+  },
+  {
+    "id": 5,
+    "name": "Stasko",
+    "age": 34,
+    "education": "PhD"
+  },
+  {
+    "id": 6,
+    "name": "Ivan Ivanov",
+    "age": 25,
+    "education": "Bachelor"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 2,
+    "name": "Petr Petrov",
+    "age": 25,
+    "education": "Bachelor"
+  },
+  {
+    "id": 3,
+    "name": "Sidor Sidorov",
+    "age": 18,
+    "education": "Secondary"
+  },
+  {
+    "id": 5,
+    "name": "Stasko",
+    "age": 55,
+    "education": "Master"
+  }
+]
