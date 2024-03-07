@@ -1,7 +1,14 @@
-class Rub {
+import 'package:meta/meta.dart';
+
+abstract interface class IRub{
+  (int rub, int kop) get rubWithKop;
+}
+
+class Rub implements IRub {
   final int kopek;
   Rub(this.kopek);
 
+  @override
   (int rub, int kop) get rubWithKop {
     return (kopek ~/ 100, kopek % 100);
   }
@@ -41,32 +48,28 @@ class Rub {
   }
 }
 
-class DigitalRub {
-  final Rub _value;
 
-  DigitalRub(this._value);
-
+extension type DigitalRub(Rub value) implements IRub {
   DigitalRub operator +(DigitalRub other) {
-    return DigitalRub(_value + other._value);
+    return DigitalRub(value + other.value);
   }
 
   DigitalRub operator *(int multiplier) {
     if (multiplier < 0) {
       throw ArgumentError('Multiplier cannot be negative');
     }
-    return DigitalRub(_value * multiplier);
+    return DigitalRub(value * multiplier);
   }
 
-  @override
-  String toString() {
-    return _value.toString();
+  @redeclare
+  (int rub, int kop) get rubWithKop {
+    return (0, value.kopek);
   }
 }
 
 void main() {
   var digitalRub = DigitalRub(Rub(10496));
-  print(digitalRub);
-  print(digitalRub * 2); // Rub(209), kopek(92)
-  print(digitalRub + DigitalRub(Rub(345))); // Rub(108), kopek(41)
-  // print(digitalRub * -2); // Error
+  print(digitalRub.rubWithKop);
+  var rub = digitalRub as Rub;
+  print(rub.rubWithKop);
 }

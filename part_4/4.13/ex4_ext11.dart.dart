@@ -1,15 +1,11 @@
-extension type TinyJson(Object it) {
+extension type TinyJson(Object value) {
   Iterable<num> get leaves sync* {
-    final it = this.it;
+    final it = this.value;
     if (it is num) {
       yield it;
     } else if (it is List<dynamic>) {
       for (var element in it) {
         yield* TinyJson(element).leaves;
-      }
-    } else if (it is Map<String, dynamic>) {
-      for (var value in it.values) {
-        yield* TinyJson(value).leaves;
       }
     } else {
       throw "Unexpected object type: ${it.runtimeType}";
@@ -18,11 +14,14 @@ extension type TinyJson(Object it) {
 }
 
 void main() {
-  var tiny = TinyJson(<String, Object>{
-    "key": [1.98, 2],
-    "key2": 3,
-    "key3": [{"key4": 3}, {"key5": 53}],
-    "key6": {"key7": 33}
-  });
+  var tiny = TinyJson(<dynamic>[
+    <dynamic>[
+      1,
+      2,
+      <dynamic>[3, 4, 5]
+    ],
+    3,
+    <dynamic>[],
+  ]);
   print(tiny.leaves);
 }
