@@ -1,5 +1,5 @@
 extension MyInt on int {
-  int pow2() {
+  int mul2() {
     return this<<1;
   }
 
@@ -10,7 +10,7 @@ extension MyInt on int {
 
 void main(List<String> arguments) {
   var value = 11;
-  print(value.pow2()); // 22
+  print(value.mul2()); // 22
   print(value.isSetBit(2)); // false
   print(value.isSetBit(0)); // true
 }
