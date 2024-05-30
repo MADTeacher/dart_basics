@@ -1,0 +1,25 @@
+{
+  "winner": "Alex ( O )",
+  "player1": "Stasko",
+  "player2": "Alex",
+  "board": {
+    "size": 3,
+    "cells": [
+      [
+        "Cell.empty",
+        "Cell.empty",
+        "Cell.cross"
+      ],
+      [
+        "Cell.nought",
+        "Cell.nought",
+        "Cell.nought"
+      ],
+      [
+        "Cell.cross",
+        "Cell.empty",
+        "Cell.cross"
+      ]
+    ]
+  }
+}

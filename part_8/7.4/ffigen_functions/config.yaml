@@ -1,0 +1,12 @@
+name: NativeLibrary # имя генерируемого класса
+description: Bindings to `bin/libmyfunc.h`.
+output: 'bin/generated_bindings.dart' # генерируемый файл
+headers:
+  entry-points: # расположение заголовочных файлов
+    - 'bin/libmyfunc.h'
+type-map: # сопоставление типов
+    native-types: 
+      'char': # тип char заменится на указанный ниже
+        'lib': 'pkg_ffi' # добавление поддержки package:ffi
+        'c-type': 'Utf8'
+        'dart-type': 'Utf8'

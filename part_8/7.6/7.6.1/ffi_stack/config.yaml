@@ -1,0 +1,6 @@
+name: NativeStack # имя генерируемого класса
+description: Bindings to `src/lib_stack.h`.
+output: 'lib/ffi_stack.dart' # генерируемый файл
+headers:
+  entry-points: # расположение заголовочных файлов
+    - 'src/lib_stack.h'

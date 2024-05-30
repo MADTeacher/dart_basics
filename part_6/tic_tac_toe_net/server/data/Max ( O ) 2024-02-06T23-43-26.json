@@ -1,0 +1,25 @@
+{
+    "winner": "Max ( O )",
+    "player1": "Stasko",
+    "player2": "Max",
+    "board": {
+        "size": 3,
+        "cells": [
+            [
+                "Cell.empty",
+                "Cell.nought",
+                "Cell.cross"
+            ],
+            [
+                "Cell.empty",
+                "Cell.nought",
+                "Cell.cross"
+            ],
+            [
+                "Cell.cross",
+                "Cell.nought",
+                "Cell.empty"
+            ]
+        ]
+    }
+}

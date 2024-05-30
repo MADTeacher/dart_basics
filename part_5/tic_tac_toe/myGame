@@ -1,0 +1,35 @@
+{
+  "board": {
+    "size": 4,
+    "cells": [
+      [
+        "Cell.empty",
+        "Cell.nought",
+        "Cell.empty",
+        "Cell.empty"
+      ],
+      [
+        "Cell.empty",
+        "Cell.empty",
+        "Cell.cross",
+        "Cell.empty"
+      ],
+      [
+        "Cell.empty",
+        "Cell.empty",
+        "Cell.empty",
+        "Cell.empty"
+      ],
+      [
+        "Cell.empty",
+        "Cell.empty",
+        "Cell.cross",
+        "Cell.empty"
+      ]
+    ]
+  },
+  "currentPlayer": {
+    "cellType": "Cell.nought"
+  },
+  "gameState": "playing"
+}
