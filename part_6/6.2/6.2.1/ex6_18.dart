@@ -8,7 +8,7 @@ void main() async{
     return count <= 4;
   });
   // либо
-  // Future.doWhile((){
+  // Future.doWhile(() async {
   //   print('count = $count');
   //   count++;
   //   await Future.delayed(Duration(milliseconds: 500));
