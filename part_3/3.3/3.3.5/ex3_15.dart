@@ -17,11 +17,11 @@ void main(List<String> arguments) {
     4,
     c: 2,
     func: a < b
-        ? (int a, int b) {
-            return a * b;
+        ? (int x, int y) {
+            return x * y;
           }
-        : (int a, int b) {
-            return a - b;
+        : (int x, int y) {
+            return x - y;
           },
   )); 
 }
