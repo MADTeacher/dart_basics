@@ -1,15 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:isolate';
 
 class User {
   final UserData data;
   final Support support;
 
-  User({
-    required this.data,
-    required this.support,
-  });
+  User({required this.data, required this.support});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -19,10 +17,7 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'data': data.toJson(),
-      'support': support.toJson(),
-    };
+    return {'data': data.toJson(), 'support': support.toJson()};
   }
 
   @override
@@ -71,24 +66,74 @@ class Support {
   final String url;
   final String text;
 
-  Support({
-    required this.url,
-    required this.text,
-  });
+  Support({required this.url, required this.text});
 
   factory Support.fromJson(Map<String, dynamic> json) {
-    return Support(
-      url: json['url'],
-      text: json['text'],
-    );
+    return Support(url: json['url'], text: json['text']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'url': url,
-      'text': text,
-    };
+    return {'url': url, 'text': text};
   }
+}
+
+Future<User?> fetchUser(int id) async {
+  if (id > 20) {
+    return null;
+  }
+
+  // Генератор случайных чисел
+  final random = Random();
+
+  // Списки с данными для генерации
+  final firstNames = ['John', 'Jane', 'Alex', 'Emily', 'Chris'];
+  final lastNames = ['Doe', 'Smith', 'Johnson', 'Williams', 'Brown'];
+  final avatars = [
+    'https://ex.in/img/faces/1-image.jpg',
+    'https:// ex.in/img/faces/2-image.jpg',
+    'https:// ex.in/img/faces/3-image.jpg',
+    'https:// ex.in/img/faces/4-image.jpg',
+    'https:// ex.in/img/faces/5-image.jpg',
+  ];
+  final supportUrls = [
+    'https:// ex.in/#support-heading',
+    'https://example.com/support',
+  ];
+  final supportTexts = [
+    'To keep ReqRes free, contributions are appreciated!',
+    'Example support text.',
+  ];
+
+  // Имитация задержки, чтобы симулировать сетевой запрос
+  await Future.delayed(Duration(milliseconds: 500));
+
+  // Генерация случайных данных
+  final firstName = firstNames[random.nextInt(firstNames.length)];
+  final lastName = lastNames[random.nextInt(lastNames.length)];
+  final email =
+      '${firstName.toLowerCase()}.${lastName.toLowerCase()}'
+      '@example.com';
+  final avatar = avatars[random.nextInt(avatars.length)];
+  final supportUrl = supportUrls[random.nextInt(supportUrls.length)];
+  final supportText = supportTexts[random.nextInt(supportTexts.length)];
+
+  // Создание объекта User с сгенерированными данными
+  final user = User(
+    data: UserData(
+      id: id,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      avatar: avatar,
+    ),
+    support: Support(url: supportUrl, text: supportText),
+  );
+
+  return user;
+}
+
+Future<User?> fetchUserWithoutId() async {
+  return await fetchUser(1);
 }
 
 /// сообщения между главным и создаваемым изолятом
@@ -114,9 +159,7 @@ class UserResponseMessage extends Message {
 void isolateFetchUser(StartMessage message) async {
   var receivePort = ReceivePort();
   var sendPort = message.sender;
-  sendPort.send(
-    StartMessage(receivePort.sendPort),
-  );
+  sendPort.send(StartMessage(receivePort.sendPort));
 
   receivePort.listen((message) async {
     switch (message) {
@@ -133,20 +176,17 @@ void isolateFetchUser(StartMessage message) async {
 
 void main() async {
   var receivePort = ReceivePort();
-  await Isolate.spawn(
-    isolateFetchUser,
-    StartMessage(receivePort.sendPort),
-  );
+  await Isolate.spawn(isolateFetchUser, StartMessage(receivePort.sendPort));
 
   SendPort? sendPort;
-
+  // слушаем порт изолята
   receivePort.listen((message) {
     switch (message) {
       case StartMessage(sender: var port):
         sendPort = port;
       case StopMessage():
         print('Isolate stopped');
-        // receivePort.close();
+        receivePort.close();
       case UserResponseMessage(user: var user):
         print(user);
     }
@@ -159,7 +199,6 @@ void main() async {
       print('Isolate not started');
       break;
     }
-
     print('Enter user id');
     var input = stdin.readLineSync()!;
     var id = int.tryParse(input);
@@ -173,24 +212,4 @@ void main() async {
     }
     await Future.delayed(Duration(seconds: 1));
   }
-}
-
-Future<User?> fetchUser(int id) async {
-  User? user;
-  var httpClient = HttpClient();
-  try {
-    var request = await httpClient.getUrl(
-      Uri.parse('https://reqres.in/api/users/$id'),
-    );
-    var response = await request.close();
-    if (response.statusCode == HttpStatus.ok) {
-      var responseBody = await response.transform(utf8.decoder).join();
-      user = User.fromJson(jsonDecode(responseBody));
-    }
-  } catch (e) {
-    print('An error occurred during the API call: $e');
-  } finally {
-    httpClient.close();
-  }
-  return user;
 }
