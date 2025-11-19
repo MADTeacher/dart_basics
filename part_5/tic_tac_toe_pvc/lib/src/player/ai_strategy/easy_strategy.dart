@@ -5,10 +5,12 @@ import '../../board/cell_type.dart';
 import 'board_helper.dart';
 import 'difficulty_strategy.dart';
 
+final Random _random = Random();
+
 // Стратегия легкого уровня сложности
 // Выполняем случайный ход на свободную клетку
 class EasyStrategy implements DifficultyStrategy {
-  final Random _random = Random();
+  const EasyStrategy();
 
   @override
   ({int row, int col}) makeMove(Board board, Cell figure) {

@@ -7,7 +7,9 @@ import 'easy_strategy.dart';
 // Стратегия среднего уровня сложности
 // Проверяем возможность выигрыша или блокируем выигрыш противника
 class MediumStrategy implements DifficultyStrategy {
-  final EasyStrategy _easyStrategy = EasyStrategy();
+  final EasyStrategy _easyStrategy = const EasyStrategy();
+
+  const MediumStrategy();
 
   @override
   ({int row, int col}) makeMove(Board board, Cell figure) {

@@ -17,6 +17,7 @@ enum ComputerDifficulty {
   const ComputerDifficulty(this.name);
 }
 
+// Класс, реализующий функционал компьютерного игрока
 class ComputerPlayer implements IPlayer {
   Cell _figure;
   ComputerDifficulty _difficulty;
@@ -57,10 +58,11 @@ class ComputerPlayer implements IPlayer {
   @override
   bool get isComputer => true;
 
+  // Выполнение хода компьютером
   @override
   ({int x, int y, bool success}) makeMove(Board board) {
     print('$symbol (Computer) making move... ');
-
+    // Применяем стратегию для расчета хода
     var result = _strategy.makeMove(board, _figure);
     int row = result.row;
     int col = result.col;
@@ -73,11 +75,11 @@ class ComputerPlayer implements IPlayer {
   DifficultyStrategy _getStrategy(ComputerDifficulty difficulty) {
     switch (difficulty) {
       case ComputerDifficulty.easy:
-        return EasyStrategy();
+        return const EasyStrategy();
       case ComputerDifficulty.medium:
-        return MediumStrategy();
+        return const MediumStrategy();
       case ComputerDifficulty.hard:
-        return HardStrategy();
+        return const HardStrategy();
     }
   }
 }

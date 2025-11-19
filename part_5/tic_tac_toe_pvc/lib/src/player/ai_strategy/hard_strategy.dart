@@ -6,12 +6,16 @@ import 'board_helper.dart';
 import 'difficulty_strategy.dart';
 import 'medium_strategy.dart';
 
+final Random _random = Random();
+
 // Стратегия сложного уровня сложности
 // Используем алгоритм минимакс для оптимального хода при
 // небольших досках (3x3) и эвристическую стратегию при
 // больших досках для уменьшения нагрузки на ЦП
 class HardStrategy implements DifficultyStrategy {
-  final Random _random = Random();
+  final MediumStrategy _mediumStrategy = const MediumStrategy();
+
+  const HardStrategy();
 
   @override
   ({int row, int col}) makeMove(Board board, Cell figure) {
@@ -27,7 +31,7 @@ class HardStrategy implements DifficultyStrategy {
     }
 
     // Для больших досок используем среднюю стратегию
-    return MediumStrategy().makeMove(board, figure);
+    return _mediumStrategy.makeMove(board, figure);
   }
 
   // Делаем оптимальный первый ход (центр или угол)

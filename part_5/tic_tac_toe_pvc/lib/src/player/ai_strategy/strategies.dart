@@ -1,4 +1,3 @@
-// Экспорт всех стратегий сложности для компьютерного игрока
 export 'board_helper.dart';
 export 'difficulty_strategy.dart';
 export 'easy_strategy.dart';
