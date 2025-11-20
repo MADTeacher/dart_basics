@@ -15,7 +15,11 @@ Future<void> callPrint() async {
 void main() async {
   await runZoned(
     () async {
-      Future.error(censored);
+      try {
+        await callPrint();
+      } catch (e) {
+        print(e);
+      }
     },
     zoneSpecification: ZoneSpecification(
       handleUncaughtError: (
