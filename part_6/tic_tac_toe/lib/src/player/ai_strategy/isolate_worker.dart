@@ -6,8 +6,8 @@ import '../../board/cell_type.dart';
 import 'board_helper.dart';
 import 'minimax_task.dart';
 
-/// Точка входа для изолята - воркер для вычисления минимакса
-/// Эта функция выполняется в отдельном изоляте
+// Точка входа в изолят, отвечающая за вычисление
+// алгоритма минимакса с ограничением глубины
 void minimaxWorker(SendPort sendPort) {
   // Создаем порт для получения сообщений
   final receivePort = ReceivePort();
@@ -28,18 +28,19 @@ void minimaxWorker(SendPort sendPort) {
         score: score,
       );
 
-      // Отправляем результат обратно на правильный порт
+      // Отправляем результат обратно в главный изолят
       message.responsePort.send(result);
     }
   });
 }
 
-/// Оценивает один конкретный ход используя алгоритм минимакс
+// Функция для оценивания одного конкретного хода
 int _evaluateMove(MinimaxTask task) {
   // Делаем ход на копии доски
   task.boardState.cells[task.row][task.col] = task.figure;
 
-  // Вычисляем оценку через минимакс (с или без ограничения глубины)
+  // Вычисляем оценку через минимакс
+  // (с ограничением глубины или без)
   final score = task.maxDepth != null
       ? _minimaxWithDepthLimit(
           task.boardState,
@@ -52,11 +53,11 @@ int _evaluateMove(MinimaxTask task) {
   // Возвращаем клетку в исходное состояние
   task.boardState.cells[task.row][task.col] = Cell.empty;
 
-  return score;
+  return score; // Возвращаем оценку
 }
 
-/// Алгоритм минимакс для определения оптимального хода
-/// (Копия из HardStrategy для работы в изоляте)
+// Функция реализующая алгоритм минимакс для
+// определения оптимального хода
 int _minimax(BoardState board, Cell figure, int depth, bool isMaximizing) {
   Cell opponentFigure = BoardHelper.getOpponentFigure(figure);
 
@@ -71,6 +72,7 @@ int _minimax(BoardState board, Cell figure, int depth, bool isMaximizing) {
 
   List<List<int>> emptyCells = BoardHelper.getEmptyCells(board);
 
+  // Рекурсивно оцениваем ход
   if (isMaximizing) {
     return _maximizingPlayer(board, figure, depth, emptyCells);
   } else {
@@ -78,7 +80,9 @@ int _minimax(BoardState board, Cell figure, int depth, bool isMaximizing) {
   }
 }
 
-/// Максимизирующий игрок (компьютер)
+// Функция, моделирующая ходы максимизирующего игрока (компьютер),
+// нацеленного на получение наибольшей оценки. Т.е его цель -
+// победить противника или сделать ничью
 int _maximizingPlayer(
   BoardState board,
   Cell figure,
@@ -95,19 +99,22 @@ int _maximizingPlayer(
     // Делаем ход
     board.cells[row][col] = figure;
 
-    // Рекурсивно оцениваем ход
+    // Получаем оценку хода для "кожаного мешка"
     int score = _minimax(board, figure, depth + 1, false);
 
     // Отменяем ход
     board.cells[row][col] = Cell.empty;
 
+    // Обновляем лучшую оценку
     bestScore = max(score, bestScore);
   }
 
   return bestScore;
 }
 
-/// Минимизирующий игрок (противник)
+// Функция, моделирующая ходы минимизирующего игрока (человека), нацеленного
+// на получение наименьшей оценки. Т.е его цель - не дать компьютеру
+// выиграть или сделать ничью
 int _minimizingPlayer(
   BoardState board,
   Cell figure,
@@ -125,19 +132,21 @@ int _minimizingPlayer(
     // Делаем ход противника
     board.cells[row][col] = opponentFigure;
 
-    // Рекурсивно оцениваем ход
+    // Оцениваем возможный ход компьютера
     int score = _minimax(board, figure, depth + 1, true);
 
     // Отменяем ход
     board.cells[row][col] = Cell.empty;
 
+    // Обновляем лучшую оценку
     bestScore = min(score, bestScore);
   }
 
   return bestScore;
 }
 
-/// Минимакс с ограничением глубины
+// Функция, реализующая алгоритм минимакс с
+// ограничением по глубине рекурсии
 int _minimaxWithDepthLimit(
   BoardState board,
   Cell figure,
@@ -163,6 +172,8 @@ int _minimaxWithDepthLimit(
   final emptyCells = BoardHelper.getEmptyCells(board);
 
   if (isMaximizing) {
+    // Моделируем ходы максимизирующего игрока,
+    // нацеленного на получение наибольшей оценки
     int bestScore = -1000;
 
     for (final cell in emptyCells) {
@@ -177,6 +188,8 @@ int _minimaxWithDepthLimit(
 
     return bestScore;
   } else {
+    // Моделируем ходы минимизирующего игрока,
+    // нацеленного на получение наименьшей оценки
     int bestScore = 1000;
 
     for (final cell in emptyCells) {
@@ -193,12 +206,15 @@ int _minimaxWithDepthLimit(
   }
 }
 
-/// Эвристическая оценка позиции
+// Функция эвристической оценки позиции, вычисляющая оценку на основе
+// потенциальных выигрышных линий. Вызывается при достижении
+// максимальной глубины рекурсии
 int _evaluatePosition(BoardState board, Cell figure) {
   final opponentFigure = BoardHelper.getOpponentFigure(figure);
   int score = 0;
 
-  // Считаем потенциальные линии
+  // Считаем потенциальные линии, которые
+  // могут быть использованы для выигрыша
   score += _countPotentialLines(board, figure) * 3;
   score -= _countPotentialLines(board, opponentFigure) * 3;
 
@@ -213,7 +229,8 @@ int _evaluatePosition(BoardState board, Cell figure) {
   return score;
 }
 
-/// Подсчет потенциальных выигрышных линий
+// Подсчитываем количество потенциальных выигрышных линий,
+// которые могут быть использованы для выигрыша
 int _countPotentialLines(BoardState board, Cell figure) {
   int count = 0;
 
@@ -249,7 +266,7 @@ int _countPotentialLines(BoardState board, Cell figure) {
   return count;
 }
 
-/// Проверяет, можно ли выиграть в этой линии
+// Проверяем, можно ли выиграть в этой линии
 bool _canWinInLine(List<Cell> line, Cell figure) {
   final opponentFigure = BoardHelper.getOpponentFigure(figure);
 

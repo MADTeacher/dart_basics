@@ -11,10 +11,18 @@ import 'hard_strategy.dart';
 import 'isolate_worker.dart';
 import 'minimax_task.dart';
 
+// Класс для хранения информации об изоляте
+class _IsolateInfo {
+  final Isolate isolate;
+  final SendPort sendPort;
+
+  _IsolateInfo({required this.isolate, required this.sendPort});
+}
+
 // Стратегия сложного уровня с использованием изолятов
 // для параллельной оценки ходов на больших досках
 class IsolateHardStrategy implements DifficultyStrategy {
-  // Стратегия для небольших и пустыхдосок
+  // Стратегия для небольших и пустых досок
   final HardStrategy _hardStrategy = const HardStrategy();
 
   // Минимальный размер доски для использования изолятов
@@ -32,6 +40,7 @@ class IsolateHardStrategy implements DifficultyStrategy {
       return _hardStrategy.makeMove(board, figure);
     }
 
+    // Иначе используем параллельную оценку ходов
     return await _makeParallelMinimaxMove(board, figure, emptyCells);
   }
 
@@ -41,14 +50,18 @@ class IsolateHardStrategy implements DifficultyStrategy {
     Cell figure,
     List<List<int>> emptyCells,
   ) async {
+    // Определяем количество изолятов. Берем минимальное из
+    // количества доступных потоков на CPU и количества пустых ячеек
     final numberOfIsolates = min(
       Platform.numberOfProcessors,
       emptyCells.length,
     );
 
     print(
-      'Using $numberOfIsolates isolates for board ${board.size}x${board.size}',
+      'Using $numberOfIsolates isolates for '
+      'board ${board.size}x${board.size}',
     );
+    // Запускаем таймер для измерения времени
     final stopwatch = Stopwatch()..start();
 
     // Создаем изоляты
@@ -63,27 +76,30 @@ class IsolateHardStrategy implements DifficultyStrategy {
         emptyCells,
       );
 
-      stopwatch.stop();
+      stopwatch.stop(); // Останавливаем таймер
       print(
-        'Parallel evaluation completed in ${stopwatch.elapsedMilliseconds}ms',
+        'Parallel evaluation completed in '
+        '${stopwatch.elapsedMilliseconds}ms',
       );
 
-      // Находим лучший ход
+      // Находим лучший ход и возвращаем его
       MinimaxResult best = results.reduce((a, b) => a.score > b.score ? a : b);
 
       return (row: best.row, col: best.col);
     } finally {
-      // Очищаем изоляты
+      // Убиваем изоляты
       await _cleanupIsolates(isolates);
     }
   }
 
-  /// Создает пул изолятов
+  // Создаем пул, в котором будет count изолятов
   Future<List<_IsolateInfo>> _createIsolatePool(int count) async {
     final List<_IsolateInfo> isolates = [];
 
     for (int i = 0; i < count; i++) {
       final receivePort = ReceivePort();
+      // Запускаем изолят и передаем ему порт
+      // для отправки результатов
       final isolate = await Isolate.spawn(minimaxWorker, receivePort.sendPort);
 
       // Получаем SendPort от изолята
@@ -95,25 +111,27 @@ class IsolateHardStrategy implements DifficultyStrategy {
     return isolates;
   }
 
-  /// Распределяет задачи между изолятами и собирает результаты
+  // Распределяем задачи между изолятами и собираем результаты
   Future<List<MinimaxResult>> _distributeTasksToIsolates(
     List<_IsolateInfo> isolates,
     Board board,
     Cell figure,
     List<List<int>> emptyCells,
   ) async {
+    // Список будущих результатов
     final List<Future<MinimaxResult>> futures = [];
     int isolateIndex = 0;
 
-    // Распределяем каждый ход по изолятам (round-robin)
-    // Определяем глубину поиска (снижена с 4 до 2 для оптимизации)
+    // Начинаем распределять ходы по изолятам
     int? maxDepth;
     int emptyCount = emptyCells.length;
 
     if (board.size >= _minBoardSizeForIsolates) {
       // Адаптивная глубина в зависимости от заполненности
       // для досок размером nxn и выше,
-      // где n = _minBoardSizeForIsolates
+      // где n = _minBoardSizeForIsolates, т.к.
+      // слишком большая глубина поиска может привести к проблемам
+      // с производительностью
       if (emptyCount > 20) {
         maxDepth = 3; // Начало игры - минимальная глубина
       } else if (emptyCount > 15) {
@@ -131,13 +149,18 @@ class IsolateHardStrategy implements DifficultyStrategy {
     }
 
     print(
-      'Using depth $maxDepth for board ${board.size}x${board.size} with $emptyCount empty cells',
+      'Using depth $maxDepth for board ${board.size}'
+      'x${board.size} with $emptyCount empty cells',
     );
 
+    // Начинаем распределять ходы по изолятам
     for (final cell in emptyCells) {
+      // Получаем изолят
       final isolateInfo = isolates[isolateIndex];
+      // Увеличиваем isolateIndex
       isolateIndex = (isolateIndex + 1) % isolates.length;
 
+      // Отправляем задачу в изолят
       futures.add(
         _sendTaskToIsolate(
           isolateInfo,
@@ -150,11 +173,11 @@ class IsolateHardStrategy implements DifficultyStrategy {
       );
     }
 
-    // Ждем все результаты
+    // Ждем и возвращаем все результаты
     return await Future.wait(futures);
   }
 
-  /// Отправляет задачу в изолят и получает результат
+  // Отправляем задачу в изолят и получаем результат
   Future<MinimaxResult> _sendTaskToIsolate(
     _IsolateInfo isolateInfo,
     Board board,
@@ -184,21 +207,13 @@ class IsolateHardStrategy implements DifficultyStrategy {
     // Закрываем порт
     responsePort.close();
 
-    return response;
+    return response; // Возвращаем результат
   }
 
-  /// Очищает изоляты
+  // Убиваем изоляты
   Future<void> _cleanupIsolates(List<_IsolateInfo> isolates) async {
     for (final isolateInfo in isolates) {
       isolateInfo.isolate.kill(priority: Isolate.immediate);
     }
   }
-}
-
-/// Информация об изоляте
-class _IsolateInfo {
-  final Isolate isolate;
-  final SendPort sendPort;
-
-  _IsolateInfo({required this.isolate, required this.sendPort});
 }
