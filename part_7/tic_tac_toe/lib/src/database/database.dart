@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -36,7 +37,7 @@ class SqliteDatabase implements IDatabaseProvider {
         // Создаем таблицу снапшотов игр
         await db.execute('''
           CREATE TABLE game_snapshot (
-            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            id INTEGER PRIMARY KEY,
             snapshot_name TEXT NOT NULL,
             board_json TEXT NOT NULL,
             player_figure INTEGER NOT NULL,
@@ -51,7 +52,7 @@ class SqliteDatabase implements IDatabaseProvider {
         // Создаем таблицу завершенных игр
         await db.execute('''
           CREATE TABLE player_finish_game (
-            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            id INTEGER PRIMARY KEY,
             winner_name TEXT NOT NULL,
             board_json TEXT NOT NULL,
             player_figure INTEGER NOT NULL,
@@ -73,18 +74,29 @@ class SqliteDatabase implements IDatabaseProvider {
     await _db.close();
   }
 
-  /// Создает или получает игрока по никнейму
+  // Создаем или получаем игрока по никнейму
   Future<void> _ensurePlayerExists(String nickName) async {
     try {
-      await _db.insert('player', {
-        'nick_name': nickName,
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      // Сначала проверяем, существует ли игрок
+      final existing = await _db.query(
+        'player',
+        where: 'nick_name = ?',
+        whereArgs: [nickName],
+        limit: 1,
+      );
+
+      if (existing.isNotEmpty) {
+        return;
+      }
+
+      // Если не существует, добавляем игрока в базу данных
+      await _db.insert('player', {'nick_name': nickName});
     } catch (e) {
-      throw RepositoryException('Failed to ensure player exists: $e');
+      throw DbException('Failed to ensure player exists: $e');
     }
   }
 
-  /// Сохраняет снапшот игры для указанного игрока
+  // Сохраняем снапшот игры для указанного игрока
   @override
   Future<void> saveSnapshot(
     GameSnapshot snapshot,
@@ -105,11 +117,11 @@ class SqliteDatabase implements IDatabaseProvider {
         'player_nick_name': playerNickName,
       }, conflictAlgorithm: ConflictAlgorithm.fail);
     } catch (e) {
-      throw RepositoryException('Failed to save snapshot: $e');
+      throw DbException('Failed to save snapshot: $e');
     }
   }
 
-  /// Получает все снапшоты игр для указанного игрока
+  // Получаем все снапшоты игр для указанного игрока
   @override
   Future<List<GameSnapshot>> getSnapshots(String nickName) async {
     try {
@@ -136,11 +148,11 @@ class SqliteDatabase implements IDatabaseProvider {
       }
       return snapshots;
     } catch (e) {
-      throw RepositoryException('Failed to get snapshots: $e');
+      throw DbException('Failed to get snapshots: $e');
     }
   }
 
-  /// Проверяет существует ли снапшот с указанным именем для данного игрока
+  // Проверяем существует ли снапшот с указанным именем для данного игрока
   @override
   Future<bool> isSnapshotExist(String snapshotName, String nickName) async {
     try {
@@ -152,11 +164,11 @@ class SqliteDatabase implements IDatabaseProvider {
       );
       return result.isNotEmpty;
     } catch (e) {
-      throw RepositoryException('Failed to check snapshot existence: $e');
+      throw DbException('Failed to check snapshot existence: $e');
     }
   }
 
-  /// Сохраняет информацию о завершенной игре
+  // Сохраняем информацию о завершенной игре
   @override
   Future<void> saveFinishedGame(FinishGameSnapshot snapshot) async {
     try {
@@ -172,11 +184,11 @@ class SqliteDatabase implements IDatabaseProvider {
         'player_nick_name': snapshot.playerNickName,
       });
     } catch (e) {
-      throw RepositoryException('Failed to save finished game: $e');
+      throw DbException('Failed to save finished game: $e');
     }
   }
 
-  /// Получает все завершенные игры для указанного игрока
+  // Получаем все завершенные игры для указанного игрока
   @override
   Future<List<FinishGameSnapshot>> getFinishedGames(String nickName) async {
     try {
@@ -200,7 +212,7 @@ class SqliteDatabase implements IDatabaseProvider {
       }
       return finishedGames;
     } catch (e) {
-      throw RepositoryException('Failed to get finished games: $e');
+      throw DbException('Failed to get finished games: $e');
     }
   }
 }

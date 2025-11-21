@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:tic_tac_toe/tic_tac_toe.dart';
 
-/// Загрузка сохраненной игры
+// Загружаем сохраненную игру
 Future<void> loadGame(IDatabaseProvider repository) async {
   while (true) {
     stdout.write('Input your nickname: ');
@@ -96,7 +96,7 @@ Future<void> loadGame(IDatabaseProvider repository) async {
   }
 }
 
-/// Показать все завершенные игры
+// Показываем все завершенные игры
 Future<void> showFinishedGames(IDatabaseProvider repository) async {
   stdout.write('Enter nickname: ');
   final nickName = stdin.readLineSync()?.trim() ?? '';

@@ -176,7 +176,7 @@ class Game {
       }
     }
 
-    _printGameResult();
+    await _printGameResult();
   }
 
   // Проверяем, является ли текущий ход ходом компьютера
@@ -286,13 +286,16 @@ class Game {
     }
   }
 
+  // Сохраняем результат игры
   Future<void> saveFinishedGame(String winner) async {
     // Запрашиваем ник игрока
-    print('Enter your nickname to save the game result: ');
-    final nickName = stdin.readLineSync()!.trim();
+    stdout.write('Enter your nickname to save the game result: ');
+    final nickName = stdin.readLineSync()?.trim() ?? '';
 
-    if (nickName == '') {
+    if (nickName.isEmpty) {
       print("Nickname is empty, game result not saved.");
+      print('Press Enter to continue...');
+      stdin.readLineSync();
       return;
     }
 
