@@ -1,6 +1,6 @@
 enum CMType {
   nickName, // ввод микнейма
-  cellValue, // установка значения на поле
+  makeMove, // установка значения на поле
   roomsList, // запрос списка комнат
   leaveFromRoom, // выход из комнаты
   joinToRoom, // вход в комнату

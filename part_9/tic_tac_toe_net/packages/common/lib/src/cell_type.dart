@@ -1,5 +1,9 @@
 enum Cell {
-  empty,
-  cross,
-  nought
+  empty('.'),
+  cross('X'),
+  nought('O');
+
+  final String symbol;
+
+  const Cell(this.symbol);
 }

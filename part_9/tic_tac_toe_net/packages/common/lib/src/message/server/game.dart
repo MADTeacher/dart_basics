@@ -1,23 +1,47 @@
 part of 'server_message.dart';
 
 // Сообщение об изменении состояния игрового поля в комнате
-class ChangedRoomBoardSM extends ServerMessage {
+class UpdateStateSM extends ServerMessage {
   final Board board;
   final Cell currentPlayer;
 
-  ChangedRoomBoardSM(
+  UpdateStateSM(
     this.board,
     this.currentPlayer,
-  ) : super(SMType.changedBoard);
+  ) : super(SMType.updateState);
 
-  factory ChangedRoomBoardSM.fromJson(
+  factory UpdateStateSM.fromJson(
     Map<String, dynamic> json,
   ) {
-    return ChangedRoomBoardSM(
+    return UpdateStateSM(
         Board.fromJson(json['board']),
         Cell.values.firstWhere(
           (e) => e.toString() == json['currentPlayer'],
         ));
+  }
+
+  @override
+  Map<String, dynamic> _getBody() {
+    return {
+      'board': board.toJson(),
+      'currentPlayer': currentPlayer.toString(),
+    };
+  }
+}
+
+class InitiateGameSM extends ServerMessage {
+  final Board board;
+  final Cell currentPlayer;
+
+  InitiateGameSM(this.board, this.currentPlayer) : super(SMType.initiateGame);
+
+  factory InitiateGameSM.fromJson(Map<String, dynamic> json) {
+    return InitiateGameSM(
+      Board.fromJson(json['board']),
+      Cell.values.firstWhere(
+        (e) => e.toString() == json['currentPlayer'],
+      ),
+    );
   }
 
   @override

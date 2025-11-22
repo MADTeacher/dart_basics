@@ -7,3 +7,12 @@ enum GameState {
   waitingOpponent,
   quit,
 }
+
+enum GameMode {
+  playerVsPlayer('PvP'),
+  playerVsComputer('PvC');
+
+  const GameMode(this.modeStr);
+
+  final String modeStr;
+}

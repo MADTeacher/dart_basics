@@ -1,7 +1,7 @@
 import 'message_type.dart';
 
 part 'nickname.dart';
-part 'board.dart';
+part 'game.dart';
 part 'rooms.dart';
 part 'history.dart';
 
@@ -17,7 +17,7 @@ sealed class ClientMessage {
     var body = json['body'] as Map<String, dynamic>;
     return switch (messageType) {
       CMType.nickName => NickNameCM.fromJson(body),
-      CMType.cellValue => CellValueCM.fromJson(body),
+      CMType.makeMove => MakeMoveCM.fromJson(body),
       CMType.roomsList => RoomsListCM.fromJson(body),
       CMType.joinToRoom => JoinToRoomCM.fromJson(body),
       CMType.getWinnerList => WinnerListCM.fromJson(body),

@@ -1,10 +1,16 @@
 enum ClientState {
-  idle, // состояние покоя
-  nickName, // ввод имени
-  mainMenu, // главное меню
-  joinToRoom, // выбор комнаты
-  getWinsList, // список матчей, закончившихся победой
-  waitStartGame, // ожидание начала игры
-  stepWaiting, // ожидание своего хода
-  playing, // игра, в данном состоянии совершается ход
+  // ожидание подтверждения никнейма от сервера
+  waitNickNameConfirm,
+  // главное меню
+  mainMenu,
+  // ход игрока
+  playerMove,
+  // ход оппонента
+  opponentMove,
+  // конец игры
+  endGame,
+  // ожидание присоединения оппонента
+  waitingOpponentInRoom,
+  // ожидание ответа от сервера
+  waitResponseFromServer,
 }

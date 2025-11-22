@@ -1,20 +1,20 @@
 part of 'client_message.dart';
 
-class CellValueCM extends ClientMessage {
+class MakeMoveCM extends ClientMessage {
   final String room; // имя игровой комнаты
   final String nickName; // имя игрока
   final int horizontal; // позиция по горизонтали
   final int vertical; // позиция по вертикали
 
-  CellValueCM(
+  MakeMoveCM(
     this.room,
     this.nickName,
     this.horizontal,
     this.vertical,
-  ) : super(CMType.cellValue);
+  ) : super(CMType.makeMove);
 
-  factory CellValueCM.fromJson(Map<String, dynamic> json) {
-    return CellValueCM(
+  factory MakeMoveCM.fromJson(Map<String, dynamic> json) {
+    return MakeMoveCM(
       json['room'] as String,
       json['nickName'] as String,
       json['horizontal'] as int,

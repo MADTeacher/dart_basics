@@ -10,6 +10,8 @@ resolution: workspace
 # Add regular dependencies here.
 dependencies:
   path: ^1.9.0
+  sqflite_common_ffi: ^2.3.6  
+  sqlite3: '>=2.9.3 <3.0.0'  
   #На этом уровне имена подключаемых пакетов
   common: ^1.0.0
 
