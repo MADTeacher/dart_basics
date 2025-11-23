@@ -1,0 +1,26 @@
+# Files and directories created by pub.
+.dart_tool/
+.packages
+build/
+pubspec.lock
+
+# Conventional directory for build output.
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Environment variables
+.env
+
+# Reports directory
+temp_reports/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
