@@ -1,13 +1,16 @@
-class Book{
-  static var bookPages = 10;
+extension MyInt on int {
+  int mul2() {
+    return this<<1;
+  }
 
-  int get pages => bookPages;
+  bool isSetBit(int bit) {
+    return (this & (1 << bit)) != 0;
+  } 
 }
 
 void main(List<String> arguments) {
-  var book1 = Book();
-  print(book1.pages); // 10
-  Book.bookPages = 20; // меняем значение
-  var book2 = Book();
-  print(book2.pages); // 20
+  var value = 11;
+  print(value.mul2()); // 22
+  print(value.isSetBit(2)); // false
+  print(value.isSetBit(0)); // true
 }

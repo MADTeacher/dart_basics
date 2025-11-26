@@ -1,84 +1,172 @@
-class Book {
+class Employee {
   final String name;
-  final int pages;
+  final int id;
+  int _age;
+  int _salary;
+  int _yearsExperience;
 
-  Book(this.name, this.pages);
+  Employee(
+    this.name,
+    this._age,
+    this.id,
+    this._salary,
+    this._yearsExperience,
+  );
 
-  Box operator +(Book otherBook) {
-    return Box([this, otherBook]);
+  Employee.named({
+    required String name,
+    required int age,
+    required int id,
+    required int salary,
+    required int yearsExperience,
+  }) : this(name, age, id, salary, yearsExperience);
+
+  factory Employee.createChild({
+    required String name,
+    required int age,
+    required int id,
+    required int salary,
+    required int yearsExperience,
+    required int typeChild,
+  }) {
+    return switch (typeChild) {
+      1 => Builder(
+          name,
+          age,
+          id,
+          salary,
+          yearsExperience,
+          (yearsExperience ~/ 3) == 0 ? 1 : (yearsExperience ~/ 3),
+        ),
+      _ => Plumber(name, age, id, salary, yearsExperience),
+    };
+  }
+
+  int get salary => _salary;
+  int get age => _age;
+  int get experience => _yearsExperience;
+
+  void ageIncrease() {
+    _age++;
+  }
+
+  void yearsExperienceIncrease() {
+    _yearsExperience++;
+  }
+
+  void salaryDown(int percent) {
+    // увеличиваем оклад
+    _salary -= ((_salary / 100) * percent).toInt();
+  }
+
+  void salaryUp(int percent) {
+    // уменьшаем оклад
+    _salary += ((_salary / 100) * percent).toInt();
   }
 
   @override
   String toString() {
-    return 'Book($name, $pages)';
+    return 'Employee($name, $age, $id, $_salary)';
   }
 }
 
-class Box {
-  final List<Book> _items;
-  Box(this._items);
+class Plumber extends Employee { // наследование
+  Plumber(
+    super.name,
+    super.age,
+    super.id,
+    super.salary,
+    super.yearsExperience,
+  );
 
-  int get size => _items.length;
 
-  String _printBooks() {
-    var str = '[';
-    for (var element in _items) {
-      str += ('$element, ');
-    }
-    str += ']';
-    return str;
+  Plumber.withMinSalary({
+    required super.name,
+    required super.age,
+    required super.id,
+    required super.yearsExperience,
+  }) : super.named(salary: 1000);
+
+  @override
+  String toString() {
+    return 'Plumber($name, $age, $id, $_salary)';
+  }
+}
+
+class Builder extends Employee { // наследование
+  int _category;
+
+  Builder(
+    super.name,
+    super.age,
+    super.id,
+    super.salary,
+    super.yearsExperience,
+    this._category,
+  );
+
+  Builder.withMinSalary({
+    required super.name,
+    required super.age,
+    required super.id,
+    required super.yearsExperience,
+    required int category,
+  })  : _category = category,
+        super.named(salary: 3000);
+  
+  int get category => _category;
+  
+  @override
+  void salaryDown(int percent) {
+    // штрафуем сотрудника
+    super.salaryDown(percent);
+    _category--;
   }
 
-  void operator +(Object book) {
-    if (book is Book) {
-      _items.add(book);
-    }
-    if (book is Box) {
-      _items.addAll(book._items);
-    }
-  }
-
-  Book operator [](int index) {
-    if (index < 0 || index >= _items.length) {
-      throw RangeError.range(index, 0, _items.length);
-    }
-    return _items[index];
-  }
-
-  void operator []=(int index, Book book) {
-    if (index < 0 || index >= _items.length) {
-      throw RangeError.range(index, 0, _items.length);
-    }
-    _items[index] = book;
+  @override
+  void salaryUp(int percent) {
+    // премируем сотрудника
+    super.salaryUp(percent);
+    _category++;
   }
 
   @override
   String toString() {
-    return _printBooks();
+    return 'Builder($name, $age, $id, $_salary, $_category)';
   }
 }
 
-void main(List<String> arguments) {
-  var book1 = Book('ВиМ т.1', 1234);
-  var book2 = Book('ТД т.1', 400);
-  var box = book1 + book2;
-  print(box);
-  print('-' * 30);
-  
-  box + Book('ЕО', 250);
-  // box += Book('Евгений Онегин', 250); // error
-  print(box);
-  print('-' * 30);
-  
-  var box2 = Box([
-    Book('Мы', 233),
-    Book('Честь имею', 600),
-  ]);
-  box2 + box;
-  print(box2);
-  print('-' * 30);
-  
-  print(box2[2]);
-  box2[2] = Book('Матан', 666);
-  print(box2);
+
+void main() {
+  var listEmployee = <Employee>[
+    Employee.createChild(
+      name: 'Alex',
+      age: 22,
+      id: 1,
+      salary: 2000,
+      yearsExperience: 1,
+      typeChild: 1,
+    ),
+    Employee.createChild(
+      name: 'John',
+      age: 27,
+      id: 4,
+      salary: 9000,
+      yearsExperience: 10,
+      typeChild: 2,
+    ),
+  ];
+
+  for (var it in listEmployee) {
+    if (it is Plumber) {
+      it.salaryDown(10);
+    }
+    if (it is Builder) {
+      it.salaryUp(10);
+    }
+    print(it);
+  }
 }
+
+
+

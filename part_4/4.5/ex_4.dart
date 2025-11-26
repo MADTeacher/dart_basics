@@ -1,76 +1,138 @@
-class Rub {
-  late final int kopek;
+class Employee {
+  final String name;
+  final int id;
+  int _age;
+  int _salary;
+  int _yearsExperience;
 
-  Rub._(this.kopek);
+  Employee(
+    this.name,
+    this._age,
+    this.id,
+    this._salary,
+    this._yearsExperience,
+  );
 
-  factory Rub(String rub) {
-    var localRub = (double.parse(rub) * 100).toStringAsFixed(0);
-    return Rub._(int.parse(localRub));
+  Employee.named({
+    required String name,
+    required int age,
+    required int id,
+    required int salary,
+    required int yearsExperience,
+  }) : this(name, age, id, salary, yearsExperience);
+
+  int get salary => _salary;
+  int get age => _age;
+  int get experience => _yearsExperience;
+
+  void ageIncrease() {
+    _age++;
   }
 
-  // перегрузка побитового И
-  Rub operator &(Object other) {
-    if (other is Rub) {
-      return Rub._(kopek & other.kopek);
-    } else if(other is int){
-      return Rub._(kopek & other*100);
-    }else if (other is double){
-      var localRub = (other * 100).toStringAsFixed(0);
-      return Rub._(kopek & int.parse(localRub));
-    }else{
-      print("(╯'□')╯︵ ┻━┻ WTF!!!");
-      return Rub._(0);
-    }
+  void yearsExperienceIncrease() {
+    _yearsExperience++;
   }
 
-  // перегрузка побитового ИЛИ
-  Rub operator |(int other) {
-    return Rub._(kopek | (other*100));
+  void salaryDown(int percent) {
+    // увеличиваем оклад
+    _salary -= ((_salary / 100) * percent).toInt();
   }
 
-  // перегрузка побитового исключающего ИЛИ
-  Rub operator ^(int other) {
-    return Rub._(kopek ^ (other*100));
+  void salaryUp(int percent) {
+    // уменьшаем оклад
+    _salary += ((_salary / 100) * percent).toInt();
   }
 
-  // перегрузка побитового НЕ
-  Rub operator ~() {
-    return Rub._(~kopek);
-  }
-
-  // перегрузка сдвига влево
-  Rub operator <<(int other) {
-    return Rub._(kopek << other);
-  }
-
-  // перегрузка сдвига вправо
-  Rub operator >>(int other) {
-    return Rub._(kopek >> other);
-  }
-
-  // перегрузка беззнакового сдвига вправо
-  Rub operator >>>(int other) {
-    return Rub._(kopek >>> other);
-  } 
-
-  // переопределение
   @override
   String toString() {
-    var rub = (kopek / 100).toStringAsFixed(2);
-    return 'Rub($rub)';
+    return 'Employee($name, $age, $id, $_salary)';
   }
 }
 
-void main(List<String> arguments) {
-  var rub1 = Rub('109');
-  print(rub1 & 100); // Rub(87.20)
-  print(rub1 & Rub('20')); // Rub(6.56)
-  print(rub1 & 30.7); // Rub(27.08)
-  print(rub1 & '30.7'); // (╯'□')╯︵ ┻━┻ WTF!!! Rub(0.00)
-  print(rub1 | 100); // Rub(121.80)
-  print(rub1 ^ 86); // Rub(28.28)
-  print(~rub1); // Rub(-109.01)
-  print(rub1 << 2); // Rub(436.00)
-  print(rub1 >> 2); // Rub(27.25)
-  print(rub1 >>> 1); // Rub(54.50)
+class Plumber extends Employee { // наследование
+  Plumber(
+    super.name,
+    super.age,
+    super.id,
+    super.salary,
+    super.yearsExperience,
+  );
+
+
+  Plumber.withMinSalary({
+    required super.name,
+    required super.age,
+    required super.id,
+    required super.yearsExperience,
+  }) : super.named(salary: 1000);
+
+  @override
+  String toString() {
+    return 'Plumber($name, $age, $id, $_salary)';
+  }
 }
+
+class Builder extends Employee { // наследование
+  int _category;
+
+  Builder(
+    super.name,
+    super.age,
+    super.id,
+    super.salary,
+    super.yearsExperience,
+    this._category,
+  );
+
+  Builder.withMinSalary({
+    required super.name,
+    required super.age,
+    required super.id,
+    required super.yearsExperience,
+    required int category,
+  })  : _category = category,
+        super.named(salary: 3000);
+  
+  int get category => _category;
+  
+  @override
+  void salaryDown(int percent) {
+    // штрафуем сотрудника
+    super.salaryDown(percent);
+    _category--;
+  }
+
+  @override
+  void salaryUp(int percent) {
+    // премируем сотрудника
+    super.salaryUp(percent);
+    _category++;
+  }
+
+  @override
+  String toString() {
+    return 'Builder($name, $age, $id, $_salary, $_category)';
+  }
+}
+
+
+void main() {
+  var listEmployee = <Employee>[
+    Builder('Alex', 22, 1, 2000, 1, 1),
+    Plumber('John', 27, 4, 9000, 3),
+    Builder('Max', 33, 2, 12000, 10, 3),
+    Plumber('Kate', 23, 4, 9000, 3),
+  ];
+
+  for (var it in listEmployee){
+    if (it is Plumber){
+      it.salaryDown(10);
+    }
+    if (it is Builder){
+      it.salaryUp(10);
+    }
+    print(it);
+  }
+}
+
+

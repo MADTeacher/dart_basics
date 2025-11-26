@@ -1,16 +1,34 @@
-class MyClass {
-  final int? _privateField;
-  MyClass(this._privateField);
+class MyID {
+  final int id;
+  final String idString;
 
-  void someMethod1() {
-    if (_privateField != null) {
-      int i = _privateField!; // OK
-    }
-  }
+  MyID(this.id): idString = id.toString();
 
-  void someMethod2() {
-    if (_privateField is int) {
-      int i = _privateField!; // OK
-    }
+  @override
+  String toString() {
+    return idString;
   }
+}
+
+class Product<T>{
+  T id;
+  final String name;
+  final double price;
+
+  Product(this.id, this.name, this.price);
+
+  T getId() => id;
+  void setId(T idProduct) => id = idProduct;
+
+  @override
+  String toString() {
+    return 'Продукт: $name с id: $id стоит $price тугриков';
+  }
+}
+
+void main(List<String> arguments) {
+  var product = Product<int>(0, 'Булочка', 33.5);
+  print(product);
+  var newProduct = Product<MyID>(MyID(10), 'Пирожок', 50);
+  print(newProduct);
 }

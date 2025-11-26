@@ -1,40 +1,107 @@
-class Rub {
-  late final int kopek;
+class Employee {
+  final String name;
+  final int id;
+  int _age;
+  int _salary;
+  int _yearsExperience;
 
-  Rub._(this.kopek);
+  Employee(
+    this.name,
+    this._age,
+    this.id,
+    this._salary,
+    this._yearsExperience,
+  );
 
-  factory Rub(String rub) {
-    var localRub = (double.parse(rub) * 100).toStringAsFixed(0);
-    return Rub._(int.parse(localRub));
+  int get salary => _salary;
+  int get age => _age;
+  int get experience => _yearsExperience;
+
+  void ageIncrease() {
+    _age++;
   }
 
-  // перегрузка сложения
-  Rub operator +(Object other) {
-    if (other is Rub) {
-      return Rub._(kopek + other.kopek);
-    } else if(other is int){
-      return Rub._(kopek + other*100);
-    }else if (other is double){
-      var localRub = (other * 100).toStringAsFixed(0);
-      return Rub._(kopek + int.parse(localRub));
-    }else{
-      print("(╯'□')╯︵ ┻━┻ WTF!!!");
-      return Rub._(0);
-    }
+  void yearsExperienceIncrease() {
+    _yearsExperience++;
   }
 
-  // переопределение
+  void salaryDown(int percent) {
+    // увеличиваем оклад
+    _salary -= ((_salary / 100) * percent).toInt();
+  }
+
+  void salaryUp(int percent) {
+    // уменьшаем оклад
+    _salary += ((_salary / 100) * percent).toInt();
+  }
+
   @override
   String toString() {
-    var rub = (kopek / 100).toStringAsFixed(2);
-    return 'Rub($rub)';
+    return 'Employee($name, $age, $id, $_salary)';
   }
 }
 
-void main(List<String> arguments) {
-  var rub1 = Rub('10');
-  print(rub1 + Rub('4.55')); // Rub(14.55)
-  print(rub1 + 2); // Rub(12.00)
-  print(rub1 + 5.5); // Rub(15.50)
-  print(rub1 + "33"); // (╯'□')╯︵ ┻━┻ WTF!!! Rub(0.00)
+class Plumber extends Employee { // наследование
+  Plumber( 
+    String name,
+    int age,
+    int id,
+    int salary,
+    int yearsExperience,
+  ) : super(name, age, id, salary, yearsExperience);
+
+  Plumber.withMinSalary(
+    String name,
+    int age,
+    int id,
+    int yearsExperience,
+  ) : super(name, age, id, 1000, yearsExperience);
+
+  @override
+  String toString() {
+    return 'Plumber($name, $age, $id, $_salary)';
+  }
+}
+
+class Builder extends Employee { // наследование
+  int _category;
+
+  Builder(
+    this._category, {
+    required String name,
+    required int age,
+    required int id,
+    required int salary,
+    required int yearsExperience,
+  }) : super(name, age, id, salary, yearsExperience);
+
+  Builder.withMinSalary({
+    required String name,
+    required int age,
+    required int id,
+    required int yearsExperience,
+    required int category,
+  })  : _category = category,
+        super(name, age, id, 3000, yearsExperience);
+  
+  int get category => _category;
+  
+  @override
+  void salaryDown(int percent) {
+    // штрафуем сотрудника
+    super.salaryDown(percent);
+    _category--;
+  }
+
+  @override
+  void salaryUp(int percent) {
+    // премируем сотрудника
+    super.salaryUp(percent);
+    _category++;
+  }
+
+  @override
+  String toString() {
+    return 'Builder($name, $age, $id, $_salary, $_category)';
+  }
 }

@@ -1,14 +1,17 @@
-class Calc{
-  static int add(int a, int b){
-    return a + b;
+extension MyString on String {
+  bool isUrl() {
+    return startsWith("http://") || startsWith("https://");
   }
 
-  int sum(int a, int b) => add(a, b);
+  List<String> toList() => split(''); 
 }
 
 void main(List<String> arguments) {
-  print(Calc.add(3, 5)); // 8
-  print(Calc.add(13, 5)); // 18
-  var calc = Calc();
-  print(calc.sum(13, 5)); // 18
+  var url = "https://dart.dev";
+  print(url.toList());   // [h, t, t, p, s, :, /, /, d, a, r, t, ., d, e, v]
+
+  print(url.isUrl()); // true
+
+  url = '-_-';
+  print(url.isUrl()); // false
 }

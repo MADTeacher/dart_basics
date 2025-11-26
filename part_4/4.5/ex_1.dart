@@ -1,67 +1,105 @@
-class Rub {
-  late final int kopek;
+class Plumber {
+  final String name;
+  final int id;
+  int _age;
+  int _salary;
+  int _yearsExperience;
 
-  Rub._(this.kopek);
+  Plumber(
+    this.name,
+    this._age,
+    this.id,
+    this._salary,
+    this._yearsExperience,
+  );
 
-  factory Rub(String rub) {
-    var localRub = (double.parse(rub) * 100).toStringAsFixed(0);
-    return Rub._(int.parse(localRub));
+  Plumber.withMinSalary(
+    this.name,
+    this._age,
+    this.id,
+    this._yearsExperience,
+  ) : _salary = 1000;
+
+  int get salary => _salary;
+  int get age => _age;
+  int get experience => _yearsExperience;
+
+  void ageIncrease() {
+    _age++;
   }
 
-  // перегрузка сложения
-  Rub operator +(Rub other) {
-    return Rub._(kopek + other.kopek);
+  void yearsExperienceIncrease() {
+    _yearsExperience++;
   }
 
-  // перегрузка вычитания
-  Rub operator -(Rub other) {
-    var temp = 0;
-    if (kopek - other.kopek >= 0) {
-      temp = kopek - other.kopek;
-    } else{
-      print("(╯'□')╯︵ ┻━┻ Банкрот!!!");
-    }
-    return Rub._(temp);
+  void salaryDown(int percent) {
+    // штрафуем сотрудника
+    _salary -= ((_salary / 100) * percent).toInt();
   }
 
-  // перегрузка умножения
-  Rub operator *(int value) {
-    return Rub._(kopek * value);
+  void salaryUp(int percent) {
+    // премируем сотрудника
+    _salary += ((_salary / 100) * percent).toInt();
   }
 
-  // перегрузка деления
-  Rub operator /(int value) {
-    // осуществляем целочисленное деление
-    return Rub._(kopek ~/ value);
-  }
-
-  // перегрузка остатка от деления
-  Rub operator %(int value) {
-    return Rub._(kopek % (value*100));
-  }
-
-  // перегрузка унарного минуса
-  Rub operator -() {
-    print("(╯'□')╯︵ ┻━┻ Банкрот!!!");
-    return Rub._(-kopek);
-  }
-
-  // переопределение
   @override
   String toString() {
-    var rub = (kopek / 100).toStringAsFixed(2);
-    return 'Rub($rub)';
+    return 'Plumber($name, $age, $id, $_salary)';
   }
 }
 
-void main(List<String> arguments) {
-  var rub1 = Rub('10');
-  var rub2 = -Rub('10'); // (╯'□')╯︵ ┻━┻ Банкрот!!!
-  var rub3 = rub1 + rub2;
-  print(rub3); // Rub(0.00)
-  print(rub1 + Rub('4.55')); // Rub(14.55)
-  print(rub3 - Rub('2')); // (╯'□')╯︵ ┻━┻ Банкрот!!! Rub(0.00)
-  print(rub1 * 3); // Rub(30.00)
-  print(rub1 / 2); // Rub(5.00)
-  print(rub1 % 4); // Rub(2.00)
+class Builder {
+  final String name;
+  final int id;
+  int _age;
+  int _salary;
+  int _yearsExperience;
+  int _category;
+
+  Builder(
+    this.name,
+    this._age,
+    this.id,
+    this._salary,
+    this._yearsExperience,
+    this._category,
+  );
+
+  Builder.withMinSalary(
+    this.name,
+    this._age,
+    this.id,
+    this._yearsExperience,
+    this._category,
+  ) : _salary = 1000;
+
+  int get salary => _salary;
+  int get age => _age;
+  int get experience => _yearsExperience;
+  int get category => _category;
+
+  void ageIncrease() {
+    _age++;
+  }
+
+  void yearsExperienceIncrease() {
+    _yearsExperience++;
+  }
+
+  void salaryDown(int percent) {
+    // штрафуем сотрудника
+    _salary -= ((_salary / 100) * percent).toInt();
+    _category--;
+  }
+
+  void salaryUp(int percent) {
+    // премируем сотрудника
+    _salary += ((_salary / 100) * percent).toInt();
+    _category++;
+  }
+
+  @override
+  String toString() {
+    return 'Builder($name, $age, $id, $_salary, $_category)';
+  }
 }
