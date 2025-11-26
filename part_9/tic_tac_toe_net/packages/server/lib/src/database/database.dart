@@ -91,6 +91,7 @@ class SqliteDatabase implements IDatabaseProvider {
     }
   }
 
+  // Получаем конкретную завершенную игру
   @override
   Future<FinishGameSnapshot> getFinishedGameById(int id) async {
     try {
@@ -116,5 +117,4 @@ class SqliteDatabase implements IDatabaseProvider {
       throw DbException('Failed to get finished game by id: $e');
     }
   }
-
 }

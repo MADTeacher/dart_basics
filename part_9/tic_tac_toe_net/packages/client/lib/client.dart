@@ -104,11 +104,9 @@ class TicTacToeClient {
         case ClientState.mainMenu:
           // Переходим в главное меню
           await _uiHandlers!.mainMenu();
-          break;
         case ClientState.playerMove:
           // Отрабатываем ход игрока
           await _uiHandlers!.playing();
-          break;
         case ClientState.opponentMove:
           // Ожидаем данные по ходу противника
           await Future.delayed(const Duration(milliseconds: 1000));
@@ -129,9 +127,6 @@ class TicTacToeClient {
           if (getState() != ClientState.waitingOpponentInRoom) {
             continue;
           }
-          // В Go версии используется неблокирующее чтение, но в Dart это сложнее
-          // Для упрощения просто продолжаем цикл
-          break;
       }
     }
   }

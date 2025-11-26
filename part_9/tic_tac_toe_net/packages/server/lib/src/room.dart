@@ -20,7 +20,8 @@ class Room {
   IPlayer? player2; // Второй игрок
   IPlayer? currentPlayer; // Активный игрок
   GameState state = GameState.waitingOpponent; // Состояние игры
-  final IDatabaseProvider database; // База данных для хранения игровой статистики
+  final IDatabaseProvider
+  database; // База данных для хранения игровой статистики
   final GameMode mode; // Режим игры
   final ComputerDifficulty? difficulty; // Уровень сложности компьютера
 
@@ -244,10 +245,10 @@ class Room {
       return;
     }
 
-    // Если теперь ход компьютера, он делает ход автоматически
+    // Если теперь ход компьютера, он автоматически делает его
     if (currentPlayer?.isComputer == true) {
       final result = await currentPlayer!.makeMove(board);
       await playerStep(currentPlayer!, result.x, result.y);
-    }   
+    }
   }
 }

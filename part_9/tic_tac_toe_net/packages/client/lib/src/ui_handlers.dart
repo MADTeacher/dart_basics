@@ -15,7 +15,7 @@ class UIHandlers {
 
   UIHandlers(this.client, this.inputHandler);
 
-  // Выводим главное меню клиента для 
+  // Выводим главное меню клиента для
   // взаимодействия с пользователем и обрабатываем ввод
   Future<void> mainMenu() async {
     // Выводим меню
@@ -84,7 +84,10 @@ class UIHandlers {
 
   // Обрабатываем ход игрока
   Future<void> playing() async {
-    stdout.write('\nEnter command: <row> <col> or q for exit to main menu\n> ');
+    stdout.write(
+      '\nEnter command: <row> <col> or q for '
+      'exit to main menu\n> ',
+    );
     var input = await inputHandler.readLine();
     if (input == null) {
       return;
@@ -140,4 +143,3 @@ class UIHandlers {
     await Future.delayed(const Duration(milliseconds: 100));
   }
 }
-
