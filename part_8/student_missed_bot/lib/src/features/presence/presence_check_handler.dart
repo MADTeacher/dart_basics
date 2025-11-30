@@ -2,9 +2,9 @@ import 'package:televerse/televerse.dart';
 import '../../core/database/database.dart';
 import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
-import '../../shared/utils/keyboard_builder.dart';
+import '../../shared/utils/inline_keyboard_helper.dart';
 
-/// Обработчик проверки присутствия
+// Класс для обработки проверки присутствия
 class PresenceCheckHandler {
   final Bot bot;
   final SqliteDatabase db;
@@ -21,7 +21,7 @@ class PresenceCheckHandler {
     required this.adminFilter,
   });
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command('presencecheck', _handlePresenceCheckCommand);
     bot.hears(BotMessages.presenceCheck, _handlePresenceCheckCommand);
@@ -33,6 +33,7 @@ class PresenceCheckHandler {
     bot.callbackQuery(RegExp(r'^apply_'), _handleApply);
   }
 
+  // Обработчик команды проверки присутствия
   Future<void> _handlePresenceCheckCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -44,7 +45,7 @@ class PresenceCheckHandler {
     }
 
     final disciplines = await db.disciplineDao.getAll();
-    final keyboard = KeyboardBuilder.createDisciplineButtons(
+    final keyboard = InlineKeyboardBuilder.createDisciplineButtons(
       disciplines,
       'presenceDis',
     );
@@ -52,6 +53,7 @@ class PresenceCheckHandler {
     await ctx.reply(BotMessages.selectDiscipline, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора дисциплины
   Future<void> _handleDisciplineSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -78,6 +80,7 @@ class PresenceCheckHandler {
     await ctx.editMessageText(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора группы
   Future<void> _handleGroupSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -96,6 +99,7 @@ class PresenceCheckHandler {
     await _showStudentList(ctx, userId, paginator, disciplineId, groupId);
   }
 
+  // Обработчик выбора студента
   Future<void> _handleStudentClick(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -124,6 +128,7 @@ class PresenceCheckHandler {
     await _showStudentList(ctx, userId, paginator, disciplineId, groupId);
   }
 
+  // Обработчик вывода списка студентов
   Future<void> _showStudentList(
     Context ctx,
     int userId,
@@ -186,6 +191,8 @@ class PresenceCheckHandler {
     );
   }
 
+  // Обработчик команды, чтобы отметить всех 
+  // студентов группы как присутствующих
   Future<void> _handleAllPresent(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -207,6 +214,8 @@ class PresenceCheckHandler {
     await ctx.editMessageText(BotMessages.allPresent);
   }
 
+  // Обработчик команды, чтобы отметить всех 
+  // студентов группы как отсутствующих
   Future<void> _handleAllMissed(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -228,6 +237,7 @@ class PresenceCheckHandler {
     await ctx.editMessageText(BotMessages.allAbsent);
   }
 
+  // Обработчик команды, чтобы применить пропуски
   Future<void> _handleApply(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;

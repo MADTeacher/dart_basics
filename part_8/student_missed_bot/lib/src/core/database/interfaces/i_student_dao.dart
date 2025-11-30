@@ -1,7 +1,7 @@
 import '../models/student.dart';
 
 // DAO-интерфейс для работы со студентами
-abstract interface  class IStudentDao {
+abstract interface class IStudentDao {
   // Запрашиваем студентов по ID группы
   Future<List<StudentModel>> getByGroupId(int groupId);
 

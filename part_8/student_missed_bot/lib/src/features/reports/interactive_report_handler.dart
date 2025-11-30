@@ -2,10 +2,9 @@ import 'package:televerse/televerse.dart';
 import '../../core/database/database.dart';
 import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
-import '../../shared/utils/keyboard_builder.dart';
 import '../../shared/utils/inline_keyboard_helper.dart';
 
-/// Обработчик интерактивного отчета
+// Класс для обработки интерактивного отчета
 class InteractiveReportHandler {
   final Bot bot;
   final SqliteDatabase db;
@@ -19,7 +18,7 @@ class InteractiveReportHandler {
     required this.adminFilter,
   });
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command('interreport', _handleInteractiveReportCommand);
     bot.hears(BotMessages.interactiveReport, _handleInteractiveReportCommand);
@@ -28,6 +27,7 @@ class InteractiveReportHandler {
     bot.callbackQuery(RegExp(r'^studRepClick_'), _handleStudentSelection);
   }
 
+  // Обработчик команды выбора дисциплины для интерактивного отчета
   Future<void> _handleInteractiveReportCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -39,7 +39,7 @@ class InteractiveReportHandler {
     }
 
     final disciplines = await db.disciplineDao.getAll();
-    final keyboard = KeyboardBuilder.createDisciplineButtons(
+    final keyboard = InlineKeyboardBuilder.createDisciplineButtons(
       disciplines,
       'disReport',
     );
@@ -47,6 +47,7 @@ class InteractiveReportHandler {
     await ctx.reply(BotMessages.selectDiscipline, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора дисциплины для интерактивного отчета
   Future<void> _handleDisciplineSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -71,6 +72,7 @@ class InteractiveReportHandler {
     await ctx.editMessageText(BotMessages.selectStudent, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора группы для интерактивного отчета
   Future<void> _handleGroupSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -88,7 +90,7 @@ class InteractiveReportHandler {
 
     final students = await db.studentDao.getByGroupId(groupId);
 
-    final keyboard = InlineKeyboardHelper.createPaginatedList(
+    final keyboard = InlineKeyboardBuilder.createPaginatedList(
       allItems: students,
       paginator: paginator,
       pageSize: pageSize,
@@ -101,6 +103,7 @@ class InteractiveReportHandler {
     await ctx.editMessageText(BotMessages.selectStudent, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора студента для интерактивного отчета
   Future<void> _handleStudentSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;

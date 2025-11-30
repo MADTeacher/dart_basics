@@ -1,53 +1,50 @@
-/// Текстовые константы для сообщений бота
+// Текстовые константы для сообщений бота
 class BotMessages {
   // Общие сообщения
-  static const String unauthorizedAccess = 'Ты кто? Оо';
-  static const String startMessage = '<b>Поехали!!!</b>';
+  static const unauthorizedAccess = 'Ты кто? Оо';
+  static const startMessage = '<b>Поехали!!!</b>';
 
   // Меню
-  static const String presenceCheck = 'Проверка присутствия';
-  static const String shortReport = 'Краткий отчет';
-  static const String fullReport = 'Полный отчет';
-  static const String interactiveReport = 'Интерактивный отчет';
+  static const presenceCheck = 'Проверка присутствия';
+  static const shortReport = 'Краткий отчет';
+  static const fullReport = 'Полный отчет';
+  static const interactiveReport = 'Интерактивный отчет';
 
   // Группы
-  static const String selectGroup = 'Выберете группу:';
-  static const String enterGroupName = 'Введите название группы:';
-  static const String groupAlreadyExists =
-      'Группа с таким названием уже существует';
-  static const String groupAdded = 'Группа успешно добавлена';
+  static const selectGroup = 'Выберете группу:';
+  static const enterGroupName = 'Введите название группы:';
+  static const groupAlreadyExists = 'Группа с таким названием уже существует';
+  static const groupAdded = 'Группа успешно добавлена';
 
   // Дисциплины
-  static const String selectDiscipline = 'Выберете дисциплину:';
-  static const String enterDisciplineName = 'Введите название дисциплины:';
-  static const String disciplineAlreadyExists =
+  static const selectDiscipline = 'Выберете дисциплину:';
+  static const enterDisciplineName = 'Введите название дисциплины:';
+  static const disciplineAlreadyExists =
       'Дисциплина с таким названием уже существует';
-  static const String disciplineAdded = 'Дисциплина успешно добавлена';
-  static const String disciplineAssigned = 'Дисциплина назначена группе';
-  static const String noGroupsToAssign = 'Нет групп для назначения';
-  static const String selectSubject = 'Выберете предмет';
+  static const disciplineAdded = 'Дисциплина успешно добавлена';
+  static const disciplineAssigned = 'Дисциплина назначена группе';
+  static const noGroupsToAssign = 'Нет групп для назначения';
+  static const selectSubject = 'Выберете предмет';
 
   // Студенты
-  static const String enterStudentName = 'Введите ФИО студента';
-  static const String invalidNameFormat =
+  static const enterStudentName = 'Введите ФИО студента';
+  static const invalidNameFormat =
       'Пожалуйста, введите ФИО формате: Иванов Иван Иванович';
-  static const String selectStudentToDelete = 'Выберете удаляемого студента';
-  static const String studentDeleted = 'Студент удален';
-  static const String selectStudent = 'Выберете студента';
+  static const selectStudentToDelete = 'Выберете удаляемого студента';
+  static const studentDeleted = 'Студент удален';
+  static const selectStudent = 'Выберете студента';
 
   // Проверка присутствия
-  static const String selectAbsentStudent = 'Выберите отсутствующего студента:';
-  static const String allPresent = 'Все студенты присутствуют на занятии!!!';
-  static const String allAbsent = 'На паре нет ни одного студента!!!';
-  static const String attendanceRecorded = 'Все потеряшкинсы зафиксированы!!!';
+  static const selectAbsentStudent = 'Выберите отсутствующего студента:';
+  static const allPresent = 'Все студенты присутствуют на занятии!!!';
+  static const allAbsent = 'На паре нет ни одного студента!!!';
+  static const attendanceRecorded = 'Все потеряшкинсы зафиксированы!!!';
 
   // Отчеты
-  static const String startingReport = 'Начинаем формировать отчет';
-  static const String reportReady = 'Отчет успешно сформирован';
-  static const String noAssignedDisciplines =
-      'За группой не числится дисциплин';
+  static const startingReport = 'Начинаем формировать отчет';
+  static const reportReady = 'Отчет успешно сформирован';
+  static const noAssignedDisciplines = 'За группой не числится дисциплин';
 
   // Ошибки
-  static const String unknownDataFormat =
-      'Неизвестный формат для обработки данных';
+  static const unknownDataFormat = 'Неизвестный формат для обработки данных';
 }

@@ -2,7 +2,7 @@ import '../models/group.dart';
 import '../models/discipline.dart';
 
 // DAO-интерфейс для работы с группами
-abstract interface  class IGroupDao {
+abstract interface class IGroupDao {
   // Запрашиваем все группы
   Future<List<GroupModel>> getAll();
 

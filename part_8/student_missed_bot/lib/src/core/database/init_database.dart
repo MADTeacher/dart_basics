@@ -3,6 +3,7 @@ import 'interfaces/i_database_provider.dart';
 import '../utils/excel_parser.dart';
 export 'database.dart';
 
+// Класс для инициализации базы данных
 class DatabaseInitializer {
   final IDatabaseProvider db;
   final String tempReportDir;
@@ -16,15 +17,9 @@ class DatabaseInitializer {
     required this.isFirstRun,
   });
 
-  // Запускаем CLI приложение
+  // Запускаем инициализацию базы данных
   Future<void> start() async {
-    // Создать директорию для отчетов если не существует
-    final dir = Directory(tempReportDir);
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
-    }
-
-    // Если это первый запуск - импортировать начальные данные
+    // Если это первый запуск - импортируем начальные данные
     if (isFirstRun) {
       await _importInitialData();
     }
@@ -108,9 +103,7 @@ class DatabaseInitializer {
             (d) => d.name == disciplineName,
           );
           disciplineId = discipline.id;
-          print(
-            '  Дисциплина уже существует: $disciplineName',
-          );
+          print('  Дисциплина уже существует: $disciplineName');
         }
 
         // Импортируем группы и студентов для этой дисциплины
@@ -161,9 +154,7 @@ class DatabaseInitializer {
           }
 
           if (studentNames.isNotEmpty) {
-            print(
-              'Добавлено студентов: ${studentNames.length}',
-            );
+            print('Добавлено студентов: ${studentNames.length}');
           }
         }
 

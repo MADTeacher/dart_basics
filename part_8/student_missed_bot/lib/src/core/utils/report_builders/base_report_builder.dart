@@ -3,7 +3,6 @@ import 'package:excel/excel.dart';
 import 'package:path/path.dart' as p;
 import '../../database/interfaces/i_database_provider.dart';
 
-
 abstract class BaseReportBuilder {
   final IDatabaseProvider db;
   final int groupId;

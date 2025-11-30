@@ -7,7 +7,7 @@ class ExcelParser {
 
   ExcelParser(this.filePath);
 
-  // Парсим файл и возвращаем структуру: 
+  // Парсим файл и возвращаем структуру:
   // дисциплина -> группа -> [студенты]
   Map<String, Map<String, List<String>>> parse() {
     final file = File(filePath);

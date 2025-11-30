@@ -1,30 +1,34 @@
 import 'package:televerse/televerse.dart';
-import '../../core/database/database.dart';
+import '../../core/database/interfaces/i_group_dao.dart';
+import '../../core/database/interfaces/i_student_dao.dart';
 import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
 import '../../shared/utils/inline_keyboard_helper.dart';
 
-/// Обработчик удаления студента
+// Класс для обработки удаления студента
 class DeleteStudentHandler {
   final Bot bot;
-  final SqliteDatabase db;
+  final IGroupDao groupDao;
+  final IStudentDao studentDao;
   final AdminFilter adminFilter;
 
   static const int pageSize = 7;
 
   DeleteStudentHandler({
     required this.bot,
-    required this.db,
+    required this.groupDao,
+    required this.studentDao,
     required this.adminFilter,
   });
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command('delstudent', _handleDeleteStudentCommand);
     bot.callbackQuery(RegExp(r'^groupForDelClick_'), _handleGroupSelection);
     bot.callbackQuery(RegExp(r'^studDelClick_'), _handleStudentDeletion);
   }
 
+  // Обработчик команды удаления студента
   Future<void> _handleDeleteStudentCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -35,7 +39,7 @@ class DeleteStudentHandler {
       return;
     }
 
-    final groups = await db.groupDao.getAll();
+    final groups = await groupDao.getAll();
     var keyboard = InlineKeyboard();
     for (final group in groups) {
       keyboard = keyboard
@@ -46,6 +50,7 @@ class DeleteStudentHandler {
     await ctx.reply(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора группы для удаления студента
   Future<void> _handleGroupSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -59,9 +64,9 @@ class DeleteStudentHandler {
     final groupId = int.tryParse(parts[2]);
     if (groupId == null) return;
 
-    final students = await db.studentDao.getByGroupId(groupId);
+    final students = await studentDao.getByGroupId(groupId);
 
-    final keyboard = InlineKeyboardHelper.createPaginatedList(
+    final keyboard = InlineKeyboardBuilder.createPaginatedList(
       allItems: students,
       paginator: paginator,
       pageSize: pageSize,
@@ -77,6 +82,7 @@ class DeleteStudentHandler {
     );
   }
 
+  // Обработчик удаления студента
   Future<void> _handleStudentDeletion(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -89,7 +95,7 @@ class DeleteStudentHandler {
     final studentId = int.tryParse(parts[1]);
     if (studentId == null) return;
 
-    await db.studentDao.deleteStudent(studentId);
+    await studentDao.deleteStudent(studentId);
 
     await ctx.editMessageText(BotMessages.studentDeleted);
   }

@@ -1,14 +1,16 @@
 import 'package:televerse/televerse.dart';
-import '../../core/database/database.dart';
+import '../../core/database/interfaces/i_group_dao.dart';
+import '../../core/database/interfaces/i_student_dao.dart';
 import '../../core/middleware/admin_filter.dart';
 import '../../core/state/conversation_state.dart';
 import '../../shared/constants/messages.dart';
-import '../../shared/utils/keyboard_builder.dart';
+import '../../shared/utils/inline_keyboard_helper.dart';
 
-/// Обработчик добавления студента
+// Класс для обработки добавления студента
 class AddStudentHandler {
   final Bot bot;
-  final SqliteDatabase db;
+  final IGroupDao groupDao;
+  final IStudentDao studentDao;
   final AdminFilter adminFilter;
   final ConversationStateManager stateManager;
 
@@ -19,24 +21,28 @@ class AddStudentHandler {
 
   AddStudentHandler({
     required this.bot,
-    required this.db,
+    required this.groupDao,
+    required this.studentDao,
     required this.adminFilter,
     required this.stateManager,
   });
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command('addstudent', _handleAddStudentCommand);
     bot.callbackQuery(RegExp(r'^groupClick_'), _handleGroupSelection);
     bot.filter(_isWaitingStudentName, _handleStudentName);
   }
 
+  // Проверяем, находится ли пользователь в состоянии 
+  // ожидания ввода имени студента
   bool _isWaitingStudentName(Context ctx) {
     final userId = ctx.from?.id;
     if (userId == null) return false;
     return stateManager.getState(userId) == BotState.waitingStudentName;
   }
 
+  // Обработчик команды добавления студента
   Future<void> _handleAddStudentCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -47,12 +53,16 @@ class AddStudentHandler {
       return;
     }
 
-    final groups = await db.groupDao.getAll();
-    final keyboard = KeyboardBuilder.createGroupButtons(groups, 'groupClick');
+    final groups = await groupDao.getAll();
+    final keyboard = InlineKeyboardBuilder.createGroupButtons(
+      groups,
+      'groupClick',
+    );
 
     await ctx.reply(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора группы для добавления студента
   Future<void> _handleGroupSelection(Context ctx) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -74,6 +84,7 @@ class AddStudentHandler {
     await ctx.editMessageText(BotMessages.enterStudentName);
   }
 
+  // Обработчик ввода имени студента и его добавления в базу данных
   Future<void> _handleStudentName(Context ctx) async {
     final userId = ctx.from?.id;
     final fullName = ctx.message?.text;
@@ -93,7 +104,7 @@ class AddStudentHandler {
     if (groupId == null) return;
 
     // Добавляем студента
-    await db.studentDao.add(groupId, fullName);
+    await studentDao.add(groupId, fullName);
     stateManager.deleteState(userId);
   }
 }

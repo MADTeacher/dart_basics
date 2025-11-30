@@ -1,27 +1,23 @@
 import 'package:televerse/televerse.dart';
 import 'package:televerse/telegram.dart';
-import '../../core/database/database.dart';
+
 import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
-import '../../shared/utils/keyboard_builder.dart';
+import '../../shared/utils/reply_keyboard_helper.dart';
 
-/// Обработчик команды /start
+// Класс для обработки команды /start
 class StartHandler {
   final Bot bot;
-  final SqliteDatabase db;
   final AdminFilter adminFilter;
 
-  StartHandler({
-    required this.bot,
-    required this.db,
-    required this.adminFilter,
-  });
+  StartHandler({required this.bot, required this.adminFilter});
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command('start', _handleStart);
   }
 
+  // Обработчик команды /start
   Future<void> _handleStart(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -35,6 +31,7 @@ class StartHandler {
     }
   }
 
+  // Обработчик команды /start для администратора
   Future<void> _handleAdminStart(Context ctx) async {
     final userId = ctx.from!.id;
 
@@ -58,10 +55,11 @@ class StartHandler {
     await ctx.reply(
       BotMessages.startMessage,
       parseMode: ParseMode.html,
-      replyMarkup: KeyboardBuilder.createMainMenuKeyboard(),
+      replyMarkup: ReplyKeyboardBuilder.createMainMenuKeyboard(),
     );
   }
 
+  // Обработчик команды /start для не администратора
   Future<void> _handleNonAdminStart(Context ctx) async {
     await ctx.reply(BotMessages.unauthorizedAccess);
   }

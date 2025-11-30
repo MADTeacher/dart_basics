@@ -3,7 +3,7 @@ import 'src/core/config/bot_config.dart';
 import 'src/core/database/init_database.dart';
 import 'src/bot.dart';
 
-Future<void> main() async {
+Future<void> runBot() async {
   print('=== Telegram Bot для учета посещаемости ===\n');
 
   // Загружаем конфигурацию
@@ -51,11 +51,12 @@ Future<void> main() async {
   } catch (e) {
     print('ОШИБКА при запуске бота: $e');
     exit(1);
-  }finally {
+  } finally {
     await db.close();
   }
 }
 
+// Проверяем, первый ли это запуск бота или нет
 bool _isFirstRun(String dbPath) {
   final dbFile = File(dbPath);
   return !dbFile.existsSync();

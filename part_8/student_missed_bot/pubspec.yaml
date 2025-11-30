@@ -3,7 +3,7 @@ description: A Telegram bot for student attendance management with SQLite databa
 version: 1.0.0
 
 environment:
-  sdk: ^3.9.0
+  sdk: ">=3.9.0 <4.0.0"
 
 dependencies:
   televerse: ^3.0.1

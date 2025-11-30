@@ -24,16 +24,8 @@ class ShortReportBuilder extends BaseReportBuilder {
     int row = 0;
 
     // Устанавливаем заголовки
-    setCell(
-      row,
-      BaseReportBuilder.studentNameColumn,
-      'ФИО студента',
-    );
-    setCell(
-      row,
-      BaseReportBuilder.numberOfPassesColumn,
-      'Пропущено занятий',
-    );
+    setCell(row, BaseReportBuilder.studentNameColumn, 'ФИО студента');
+    setCell(row, BaseReportBuilder.numberOfPassesColumn, 'Пропущено занятий');
     row++;
 
     // Заполняем данные студентов
@@ -52,32 +44,21 @@ class ShortReportBuilder extends BaseReportBuilder {
       );
       // рассчитываем процент пропусков. Если он больше 25%,
       //то устанавливаем красный цвет, иначе зеленый
-      final missPercent =
-          totalClasses > 0 ? performance.numberOfPasses / totalClasses : 0;
+      final missPercent = totalClasses > 0
+          ? performance.numberOfPasses / totalClasses
+          : 0;
       final color = missPercent > 0.25
           ? BaseReportBuilder.redFill
           : BaseReportBuilder.greenFill;
-      setCellColor(
-        row,
-        BaseReportBuilder.numberOfPassesColumn,
-        color,
-      );
+      setCellColor(row, BaseReportBuilder.numberOfPassesColumn, color);
 
       row++; // Переходим к следующей строке
     }
 
     // Устанавливаем информацию о всего занятиях
     row++;
-    setCell(
-      row,
-      BaseReportBuilder.studentNameColumn,
-      'Всего занятий',
-    );
+    setCell(row, BaseReportBuilder.studentNameColumn, 'Всего занятий');
     row++;
-    setCell(
-      row,
-      BaseReportBuilder.studentNameColumn,
-      totalClasses,
-    );
+    setCell(row, BaseReportBuilder.studentNameColumn, totalClasses);
   }
 }

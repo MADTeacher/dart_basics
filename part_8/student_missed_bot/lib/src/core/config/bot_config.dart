@@ -46,7 +46,8 @@ class BotConfig {
     }
   }
 
-  String get dbPath{
-    return path.join(Directory.current.path, '$databaseName.sqlite');
+  // Возвращаем путь к базе данных
+  String get dbPath {
+    return path.join(Directory.current.path, '$databaseName.db');
   }
 }

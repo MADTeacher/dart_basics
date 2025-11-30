@@ -46,14 +46,16 @@ class FullReportBuilder extends BaseReportBuilder {
     // Устанавливаем заголовки дат пропусков
     for (final date in sortedDates) {
       // Проверяем, есть ли другие занятия в этот же день
-      final sameDay = sortedDates.where((d) =>
-          d.day == date.day && d.month == date.month && d.year == date.year);
+      final sameDay = sortedDates.where(
+        (d) =>
+            d.day == date.day && d.month == date.month && d.year == date.year,
+      );
 
       // Если несколько занятий в день - добавляем время
       final header = sameDay.length > 1
           ? '${date.day}.${date.month} '
-              '${date.hour.toString().padLeft(2, '0')}:'
-              '${date.minute.toString().padLeft(2, '0')}'
+                '${date.hour.toString().padLeft(2, '0')}:'
+                '${date.minute.toString().padLeft(2, '0')}'
           : '${date.day}.${date.month}';
 
       setCell(row, col++, header);
@@ -67,8 +69,9 @@ class FullReportBuilder extends BaseReportBuilder {
       setCell(row, col++, performance.studentName);
 
       // Устанавливаем количество пропусков
-      final missedCount =
-          performance.missedData.where((m) => m.isMissed).length;
+      final missedCount = performance.missedData
+          .where((m) => m.isMissed)
+          .length;
       setCell(row, col++, missedCount);
 
       // Устанавливаем отметки по датам

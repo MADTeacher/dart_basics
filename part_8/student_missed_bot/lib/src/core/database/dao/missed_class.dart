@@ -41,7 +41,7 @@ class MissedClassDao implements IMissedClassDao {
         'is_missed': isMissed ? 1 : 0,
       });
     }
-  
+
     // Выполняем batch
     await batch.commit(noResult: true);
   }
@@ -80,7 +80,7 @@ class MissedClassDao implements IMissedClassDao {
   // Запрашиваем успеваемость студента по конкретной дисциплине
   @override
   Future<({String fullName, int missedCount, int totalCount})>
-      getAcademicPerformance(int studentId, int disciplineId) async {
+  getAcademicPerformance(int studentId, int disciplineId) async {
     final List<Map<String, dynamic>> result = await _db.rawQuery(
       '''
       SELECT 
@@ -112,7 +112,7 @@ class MissedClassDao implements IMissedClassDao {
   // Подсчитываем пропуски для группы по дисциплине
   @override
   Future<({int totalClasses, List<AcademicPerformanceModel> performances})>
-      countMissedClasses(int groupId, int disciplineId) async {
+  countMissedClasses(int groupId, int disciplineId) async {
     // Запрашиваем общее количество занятий
     final List<Map<String, dynamic>> totalResult = await _db.rawQuery(
       '''
@@ -149,7 +149,7 @@ class MissedClassDao implements IMissedClassDao {
         numberOfPasses: row['number_of_passes'] as int? ?? 0,
       );
     }).toList();
-    // Возвращаем результат: 
+    // Возвращаем результат:
     // общее количество занятий и список моделей успеваемости
     return (totalClasses: totalClasses, performances: performances);
   }
@@ -185,8 +185,9 @@ class MissedClassDao implements IMissedClassDao {
       // Получаем данные о студенте
       final studentId = row['id'] as int;
       final studentName = row['student_name'] as String;
-      final isMissed =
-          row['is_missed'] != null ? (row['is_missed'] as int) == 1 : false;
+      final isMissed = row['is_missed'] != null
+          ? (row['is_missed'] as int) == 1
+          : false;
       final dayStr = row['day'] as String?;
 
       // Если студент еще не добавлен в Map, добавляем его
@@ -200,11 +201,8 @@ class MissedClassDao implements IMissedClassDao {
       // Если дата пропуска не null, считаем этот день пропуском
       if (dayStr != null) {
         studentMap[studentId]!.missedData.add(
-              MissedInfoModel(
-                isMissed: isMissed,
-                day: DateTime.parse(dayStr),
-              ),
-            );
+          MissedInfoModel(isMissed: isMissed, day: DateTime.parse(dayStr)),
+        );
       }
     }
 

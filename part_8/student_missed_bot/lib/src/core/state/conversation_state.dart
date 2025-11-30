@@ -1,4 +1,4 @@
-/// Состояния бота для диалогов
+// Состояния бота для диалогов
 enum BotState {
   idle,
   waitingGroupName,
@@ -6,7 +6,7 @@ enum BotState {
   waitingStudentName,
 }
 
-/// Данные состояния пользователя
+// Данные состояния пользователя
 class StateData {
   final BotState state;
   final Map<String, dynamic> data;
@@ -15,26 +15,31 @@ class StateData {
     : data = data ?? {};
 }
 
-/// Управление состояниями диалогов (in-memory)
+// Класс для управления состояниями диалогов (in-memory)
 class ConversationStateManager {
+  // Таблица для хранения состояний пользователей
+  // ключ - id пользователя, значение - данные состояния пользователя
   final Map<int, StateData> _states = {};
 
-  /// Установить состояние пользователя
+  // Устанавливаем состояние пользователя
+  // userId - id пользователя
+  // state - состояние бота в диалоге с пользователем
+  // data - данные состояния пользователя
   void setState(int userId, BotState state, {Map<String, dynamic>? data}) {
     _states[userId] = StateData(state: state, data: data);
   }
 
-  /// Получить состояние пользователя
+  // Получаем состояние пользователя
   BotState? getState(int userId) {
     return _states[userId]?.state;
   }
 
-  /// Получить данные состояния пользователя
+  // Получаем данные состояния пользователя
   Map<String, dynamic>? getData(int userId) {
     return _states[userId]?.data;
   }
 
-  /// Обновить данные состояния
+  // Обновляем данные состояния
   void updateData(int userId, Map<String, dynamic> newData) {
     final current = _states[userId];
     if (current != null) {
@@ -43,12 +48,12 @@ class ConversationStateManager {
     }
   }
 
-  /// Удалить состояние пользователя
+  // Удаляем состояние пользователя
   void deleteState(int userId) {
     _states.remove(userId);
   }
 
-  /// Проверить, есть ли активное состояние у пользователя
+  // Проверяем, есть ли активное состояние у пользователя
   bool hasState(int userId) {
     return _states.containsKey(userId) &&
         _states[userId]!.state != BotState.idle;

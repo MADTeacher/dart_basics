@@ -3,13 +3,13 @@ import 'package:televerse/televerse.dart';
 import '../../core/database/database.dart';
 import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
-import '../../shared/utils/keyboard_builder.dart';
+import '../../shared/utils/inline_keyboard_helper.dart';
 import '../../core/utils/report_builders.dart';
 
-/// Тип отчета
+// Тип отчета
 enum ReportType { short, full }
 
-/// Обработчик загрузки отчетов
+// Класс для обработки загрузки отчетов
 class DownloadReportHandler {
   final Bot bot;
   final SqliteDatabase db;
@@ -23,7 +23,7 @@ class DownloadReportHandler {
     required this.tempReportDir,
   });
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command(
       'fullreport',
@@ -60,6 +60,7 @@ class DownloadReportHandler {
     );
   }
 
+  // Обработчик команды выбора группы для отчета
   Future<void> _handleReportCommand(Context ctx, ReportType reportType) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -72,11 +73,12 @@ class DownloadReportHandler {
 
     final groups = await db.groupDao.getAll();
     final prefix = reportType == ReportType.full ? 'fullReport' : 'shortReport';
-    final keyboard = KeyboardBuilder.createGroupButtons(groups, prefix);
+    final keyboard = InlineKeyboardBuilder.createGroupButtons(groups, prefix);
 
     await ctx.reply(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
+  // Обработчик выбора группы
   Future<void> _handleGroupSelection(Context ctx, ReportType reportType) async {
     final userId = ctx.from?.id;
     final callbackData = ctx.callbackQuery?.data;
@@ -126,6 +128,7 @@ class DownloadReportHandler {
     );
   }
 
+  // Обработчик выбора дисциплины для отчета
   Future<void> _handleDisciplineSelection(
     Context ctx,
     ReportType reportType,
@@ -146,6 +149,7 @@ class DownloadReportHandler {
     await _createReport(ctx, userId, groupId, disciplineId, reportType);
   }
 
+  // Обработчик создания отчета
   Future<void> _createReport(
     Context ctx,
     int userId,

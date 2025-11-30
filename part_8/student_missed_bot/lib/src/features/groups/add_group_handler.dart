@@ -1,35 +1,38 @@
 import 'package:televerse/televerse.dart';
-import '../../core/database/database.dart';
+import '../../core/database/interfaces/i_group_dao.dart';
 import '../../core/middleware/admin_filter.dart';
 import '../../core/state/conversation_state.dart';
 import '../../shared/constants/messages.dart';
 
-/// Обработчик добавления группы
+// Класс для обработки добавления группы
 class AddGroupHandler {
   final Bot bot;
-  final SqliteDatabase db;
+  final IGroupDao groupDao;
   final AdminFilter adminFilter;
   final ConversationStateManager stateManager;
 
   AddGroupHandler({
     required this.bot,
-    required this.db,
+    required this.groupDao,
     required this.adminFilter,
     required this.stateManager,
   });
 
-  /// Зарегистрировать handlers
+  // Регистрируем handlers
   void register() {
     bot.command('addgroup', _handleAddGroupCommand);
     bot.filter(_isWaitingGroupName, _handleGroupName);
   }
 
+  // Проверяем, находится ли пользователь в состоянии 
+  // ожидания ввода названия группы
   bool _isWaitingGroupName(Context ctx) {
     final userId = ctx.from?.id;
     if (userId == null) return false;
     return stateManager.getState(userId) == BotState.waitingGroupName;
   }
 
+  // Обработчик команды добавления группы
   Future<void> _handleAddGroupCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
@@ -44,6 +47,8 @@ class AddGroupHandler {
     await ctx.reply(BotMessages.enterGroupName);
   }
 
+  // Обработчик ввода названия группы и ее
+  // добавления в базу данных
   Future<void> _handleGroupName(Context ctx) async {
     final userId = ctx.from?.id;
     final groupName = ctx.message?.text;
@@ -51,14 +56,14 @@ class AddGroupHandler {
     if (userId == null || groupName == null) return;
 
     // Проверяем, существует ли группа
-    final exists = await db.groupDao.exists(groupName);
+    final exists = await groupDao.exists(groupName);
     if (exists) {
       await ctx.reply(BotMessages.groupAlreadyExists);
       return;
     }
 
     // Добавляем группу
-    await db.groupDao.add(groupName);
+    await groupDao.add(groupName);
     stateManager.deleteState(userId);
     await ctx.reply(BotMessages.groupAdded);
   }

@@ -14,12 +14,14 @@ import 'features/presence/presence_check_handler.dart';
 import 'features/reports/download_report_handler.dart';
 import 'features/reports/interactive_report_handler.dart';
 
-/// Главный класс бота
+// Главный класс бота
 class AttendanceBot {
   final BotConfig config;
   final SqliteDatabase db;
   late final Bot bot;
+  // Фильтр для проверки прав администратора
   late final AdminFilter adminFilter;
+  // Менеджер состояний диалогов
   late final ConversationStateManager stateManager;
 
   AttendanceBot({required this.config, required this.db}) {
@@ -28,58 +30,67 @@ class AttendanceBot {
     stateManager = ConversationStateManager();
   }
 
-  /// Зарегистрировать все handlers
+  // Метод для регистрации всех обработчиков команд и фильтров
   void registerHandlers() {
     // Start handler
+    // Команда на запуск бота
     final startHandler = StartHandler(
       bot: bot,
-      db: db,
       adminFilter: adminFilter,
     );
     startHandler.register();
 
     // Group handlers
+    // Команда на добавление группы
     final addGroupHandler = AddGroupHandler(
       bot: bot,
-      db: db,
+      groupDao: db.groupDao,
       adminFilter: adminFilter,
       stateManager: stateManager,
     );
     addGroupHandler.register();
 
     // Discipline handlers
+    // Команда на добавление дисциплины
     final addDisciplineHandler = AddDisciplineHandler(
       bot: bot,
-      db: db,
+      disciplineDao: db.disciplineDao,
       adminFilter: adminFilter,
       stateManager: stateManager,
     );
     addDisciplineHandler.register();
 
+    // Команда на назначение дисциплины группе
     final assignDisciplineHandler = AssignDisciplineHandler(
       bot: bot,
-      db: db,
+      groupDao: db.groupDao,
+      disciplineDao: db.disciplineDao,
       adminFilter: adminFilter,
     );
     assignDisciplineHandler.register();
 
     // Student handlers
+    // Команда на добавление студента
     final addStudentHandler = AddStudentHandler(
       bot: bot,
-      db: db,
+      groupDao: db.groupDao,
+      studentDao: db.studentDao,
       adminFilter: adminFilter,
       stateManager: stateManager,
     );
     addStudentHandler.register();
 
+    // Команда на удаление студента
     final deleteStudentHandler = DeleteStudentHandler(
       bot: bot,
-      db: db,
+      groupDao: db.groupDao,
+      studentDao: db.studentDao,
       adminFilter: adminFilter,
     );
     deleteStudentHandler.register();
 
     // Presence check handler
+    // Команда на проверку присутствия
     final presenceCheckHandler = PresenceCheckHandler(
       bot: bot,
       db: db,
@@ -88,6 +99,7 @@ class AttendanceBot {
     presenceCheckHandler.register();
 
     // Report handlers
+    // Команда на скачивание отчета
     final downloadReportHandler = DownloadReportHandler(
       bot: bot,
       db: db,
@@ -96,6 +108,8 @@ class AttendanceBot {
     );
     downloadReportHandler.register();
 
+    // Interactive report handler
+    // Команда на вывод интерактивного отчета
     final interactiveReportHandler = InteractiveReportHandler(
       bot: bot,
       db: db,
@@ -106,7 +120,7 @@ class AttendanceBot {
     print('Все handlers зарегистрированы');
   }
 
-  /// Запустить бота
+  // Метод для запуска бота
   Future<void> start() async {
     print('Запуск бота...');
     await bot.start();
