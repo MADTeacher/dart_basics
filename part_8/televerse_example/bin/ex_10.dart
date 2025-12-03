@@ -1,23 +1,20 @@
 import 'package:televerse/televerse.dart';
 
-  Future<void> createMainMenu(Context ctx) async {
-    final keyboard = InlineKeyboard()
-        .text('Кнопка 1', 'button_1')
-        .text('Кнопка 2', 'button_2');
-    
-    await ctx.reply(
-      'Выберите опцию:',
-      replyMarkup: keyboard,
-    );
-  }
+// Функция для создания главного меню
+Future<void> createMainMenu(Context ctx) async {
+  final keyboard = InlineKeyboard()
+      .text('Кнопка 1', 'button_1')
+      .text('Кнопка 2', 'button_2');
 
+  await ctx.reply('Выберите опцию:', replyMarkup: keyboard);
+}
 
 void main(List<String> arguments) async {
   final bot = Bot('8504586081:AAFvOlFhmYR4eIhJXKTEics2uvs89JxmeY8');
 
   // Устанавливаем обработчик команды /start
   bot.command('start', (ctx) async {
-    // Создаем inline-клавиатуру с двумя кнопками
+    // Создаем главное меню
     await createMainMenu(ctx);
   });
 
@@ -25,7 +22,7 @@ void main(List<String> arguments) async {
   bot.callbackQuery('button_1', (ctx) async {
     // Указываем тг, что мы обработали callback query
     await ctx.answerCallbackQuery();
-    
+
     // Создаем новую клавиатуру с 7 кнопками
     final newKeyboard = InlineKeyboard()
         .text('Кнопка 1.1', 'btn_1_1')
@@ -38,7 +35,7 @@ void main(List<String> arguments) async {
         .text('Кнопка 1.6', 'btn_1_6') // Нижний ряд: 3 кнопки
         .row() // Переход на новый ряд
         .text('Назад', 'back'); // Кнопка назад
-    
+
     // Обновляем текст и клавиатуру в том же сообщении
     await ctx.editMessageText(
       'Нажмите на любую кнопку:',
@@ -67,12 +64,11 @@ void main(List<String> arguments) async {
   bot.callbackQuery('button_2', (ctx) async {
     // Указываем тг, что мы обработали callback query
     await ctx.answerCallbackQuery();
-    
+
     // Создаем клавиатуру с кнопкой "назад"
-    final backKeyboard = InlineKeyboard()
-        .text('Назад', 'back');
-    
-    // Редактируем исходное сообщение с текстом о разработке и кнопкой "назад"
+    final backKeyboard = InlineKeyboard().text('Назад', 'back');
+
+    // Редактируем исходное сообщение, меняя текст и клавиатуру
     await ctx.editMessageText(
       'Функционал находится на стадии разработки 🚧',
       replyMarkup: backKeyboard,
@@ -83,8 +79,8 @@ void main(List<String> arguments) async {
   bot.callbackQuery('back', (ctx) async {
     // Указываем тг, что мы обработали callback query
     await ctx.answerCallbackQuery();
-    
-    // Восстанавливаем исходную клавиатуру
+
+    // Переходим на главное меню
     await createMainMenu(ctx);
   });
 
