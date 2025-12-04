@@ -10,7 +10,7 @@ Future<void> createMainMenu(Context ctx) async {
 }
 
 void main(List<String> arguments) async {
-  final bot = Bot('8504586081:AAFvOlFhmYR4eIhJXKTEics2uvs89JxmeY8');
+  final bot = Bot('YOUR_BOT_TOKEN');
 
   // Устанавливаем обработчик команды /start
   bot.command('start', (ctx) async {
