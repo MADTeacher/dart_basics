@@ -1,6 +1,5 @@
 import 'package:televerse/televerse.dart';
 import '../../core/database/database.dart';
-import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
 import '../../shared/utils/inline_keyboard_helper.dart';
 
@@ -8,23 +7,29 @@ import '../../shared/utils/inline_keyboard_helper.dart';
 class PresenceCheckHandler {
   final Bot bot;
   final SqliteDatabase db;
-  final AdminFilter adminFilter;
 
   static const int pageSize = 5;
 
   // Хранилище отсутствующих студентов (chatId -> список ID студентов)
   final Map<int, List<int>> _missedStudents = {};
 
-  PresenceCheckHandler({
-    required this.bot,
-    required this.db,
-    required this.adminFilter,
-  });
+  PresenceCheckHandler({required this.bot, required this.db});
 
   // Регистрируем handlers
   void register() {
+    // Два варианта запуска обработчика команды проверки присутствия
+    // 1. Через команду /presencecheck
+    // 2. Через текстовое сообщение "Проверка присутствия"
     bot.command('presencecheck', _handlePresenceCheckCommand);
     bot.hears(BotMessages.presenceCheck, _handlePresenceCheckCommand);
+    // Регистрируем обработчики, отвечающие за разные шаги
+    // проверки присутствия:
+    // 1. Выбор дисциплины
+    // 2. Выбор группы
+    // 3. Выбор студента
+    // 4. Отметить всех студентов как присутствующих
+    // 5. Отметить всех студентов как отсутствующих
+    // 6. Применить результаты проверки присутствия
     bot.callbackQuery(RegExp(r'^presenceDis_'), _handleDisciplineSelection);
     bot.callbackQuery(RegExp(r'^presenceGroup_'), _handleGroupSelection);
     bot.callbackQuery(RegExp(r'^studClick_'), _handleStudentClick);
@@ -38,27 +43,21 @@ class PresenceCheckHandler {
     final userId = ctx.from?.id;
     if (userId == null) return;
 
-    final isAdmin = adminFilter.isAdmin(userId);
-    if (!isAdmin) {
-      await ctx.reply(BotMessages.unauthorizedAccess);
-      return;
-    }
-
     final disciplines = await db.disciplineDao.getAll();
+    // Создаем клавиатуру для выбора дисциплины
     final keyboard = InlineKeyboardBuilder.createDisciplineButtons(
       disciplines,
       'presenceDis',
     );
 
+    // Отправляем сообщение с клавиатурой
     await ctx.reply(BotMessages.selectDiscipline, replyMarkup: keyboard);
   }
 
   // Обработчик выбора дисциплины
   Future<void> _handleDisciplineSelection(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
 
     final parts = callbackData.split('_');
     if (parts.length != 2) return;
@@ -75,17 +74,16 @@ class PresenceCheckHandler {
           .row();
     }
 
-    _missedStudents[userId] = [];
+    _missedStudents[ctx.from!.id] = [];
 
+    // Редактируем сообщение с клавиатурой
     await ctx.editMessageText(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
   // Обработчик выбора группы
   Future<void> _handleGroupSelection(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
 
     final parts = callbackData.split('_');
     if (parts.length != 4) return;
@@ -96,15 +94,13 @@ class PresenceCheckHandler {
 
     if (disciplineId == null || groupId == null) return;
 
-    await _showStudentList(ctx, userId, paginator, disciplineId, groupId);
+    await _showStudentList(ctx, ctx.from!.id, paginator, disciplineId, groupId);
   }
 
   // Обработчик выбора студента
   Future<void> _handleStudentClick(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
 
     final parts = callbackData.split('_');
     if (parts.length != 5) return;
@@ -116,7 +112,7 @@ class PresenceCheckHandler {
 
     if (disciplineId == null || groupId == null || studentId == null) return;
 
-    // Переключаем статус студента
+    final userId = ctx.from!.id;
     final missedList = _missedStudents[userId] ?? [];
     if (missedList.contains(studentId)) {
       missedList.remove(studentId);
@@ -136,16 +132,21 @@ class PresenceCheckHandler {
     int disciplineId,
     int groupId,
   ) async {
+    // Получаем список студентов группы
     final students = await db.studentDao.getByGroupId(groupId);
+    // Вычисляем начало списка студентов для текущей страницы
     final startIndex = paginator * pageSize;
+    // Вычисляем конец списка студентов для текущей страницы
     final endIndex = (paginator + 1) * pageSize;
+    // Получаем список студентов для текущей страницы
     final page = students.sublist(
       startIndex,
       endIndex > students.length ? students.length : endIndex,
     );
 
+    // Получаем список отсутствующих студентов для текущего пользователя
     final missedList = _missedStudents[userId] ?? [];
-
+    // Создаем клавиатуру для выбора студента
     var keyboard = InlineKeyboard();
     for (final student in page) {
       final isMissed = missedList.contains(student.id);
@@ -158,10 +159,11 @@ class PresenceCheckHandler {
           .row();
     }
 
-    // Кнопки навигации
+    // Проверяем, есть ли следующая и предыдущая страницы
     final hasNext = students.length > (paginator + 1) * pageSize;
     final hasPrev = paginator > 0;
 
+    // Добавляем кнопки навигации, если они нужны
     if (hasPrev || hasNext) {
       if (hasPrev) {
         keyboard = keyboard.text(
@@ -178,26 +180,26 @@ class PresenceCheckHandler {
       keyboard = keyboard.row();
     }
 
-    // Специальные кнопки
+    // Добавляем специальные кнопки для отметки всех студентов 
+    // как присутствующих или отсутствующих
     keyboard = keyboard
         .text('🚀', 'allPresent_${disciplineId}_$groupId')
         .text('⚔️', 'allMissed_${disciplineId}_$groupId')
         .row()
         .text('Принять', 'apply_${disciplineId}_$groupId');
 
+    // Редактируем сообщение с клавиатурой
     await ctx.editMessageText(
       BotMessages.selectAbsentStudent,
       replyMarkup: keyboard,
     );
   }
 
-  // Обработчик команды, чтобы отметить всех 
+  // Обработчик команды, чтобы отметить всех
   // студентов группы как присутствующих
   Future<void> _handleAllPresent(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
 
     final parts = callbackData.split('_');
     if (parts.length != 3) return;
@@ -207,20 +209,19 @@ class PresenceCheckHandler {
 
     if (disciplineId == null || groupId == null) return;
 
-    _missedStudents[userId] = [];
+    _missedStudents[ctx.from!.id] = [];
 
     await db.missedClassDao.addAllRecords(groupId, disciplineId, false);
 
+    // Редактируем сообщение о том, что все студенты присутствуют
     await ctx.editMessageText(BotMessages.allPresent);
   }
 
-  // Обработчик команды, чтобы отметить всех 
+  // Обработчик команды, чтобы отметить всех
   // студентов группы как отсутствующих
   Future<void> _handleAllMissed(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
 
     final parts = callbackData.split('_');
     if (parts.length != 3) return;
@@ -230,19 +231,17 @@ class PresenceCheckHandler {
 
     if (disciplineId == null || groupId == null) return;
 
-    _missedStudents[userId] = [];
+    _missedStudents[ctx.from!.id] = [];
 
     await db.missedClassDao.addAllRecords(groupId, disciplineId, true);
 
+    // Редактируем сообщение о том, что все студенты отсутствуют
     await ctx.editMessageText(BotMessages.allAbsent);
   }
 
   // Обработчик команды, чтобы применить пропуски
   Future<void> _handleApply(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
+    final callbackData = ctx.callbackQuery!.data!;
 
     final parts = callbackData.split('_');
     if (parts.length != 3) return;
@@ -252,6 +251,7 @@ class PresenceCheckHandler {
 
     if (disciplineId == null || groupId == null) return;
 
+    final userId = ctx.from!.id;
     final missedList = _missedStudents[userId] ?? [];
 
     await db.missedClassDao.addMissedRecords(missedList, groupId, disciplineId);

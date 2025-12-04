@@ -33,12 +33,13 @@ class BotMessages {
   static const selectStudentToDelete = 'Выберете удаляемого студента';
   static const studentDeleted = 'Студент удален';
   static const selectStudent = 'Выберете студента';
+  static const studentAdded = 'Студент успешно добавлен';
 
   // Проверка присутствия
   static const selectAbsentStudent = 'Выберите отсутствующего студента:';
   static const allPresent = 'Все студенты присутствуют на занятии!!!';
   static const allAbsent = 'На паре нет ни одного студента!!!';
-  static const attendanceRecorded = 'Все потеряшкинсы зафиксированы!!!';
+  static const attendanceRecorded = 'Все опаздашкинсы зафиксированы!!!';
 
   // Отчеты
   static const startingReport = 'Начинаем формировать отчет';

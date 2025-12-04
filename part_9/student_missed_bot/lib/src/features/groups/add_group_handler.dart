@@ -1,6 +1,5 @@
 import 'package:televerse/televerse.dart';
 import '../../core/database/interfaces/i_group_dao.dart';
-import '../../core/middleware/admin_filter.dart';
 import '../../core/state/conversation_state.dart';
 import '../../shared/constants/messages.dart';
 
@@ -8,13 +7,11 @@ import '../../shared/constants/messages.dart';
 class AddGroupHandler {
   final Bot bot;
   final IGroupDao groupDao;
-  final AdminFilter adminFilter;
   final ConversationStateManager stateManager;
 
   AddGroupHandler({
     required this.bot,
     required this.groupDao,
-    required this.adminFilter,
     required this.stateManager,
   });
 
@@ -37,12 +34,7 @@ class AddGroupHandler {
     final userId = ctx.from?.id;
     if (userId == null) return;
 
-    final isAdmin = adminFilter.isAdmin(userId);
-    if (!isAdmin) {
-      await ctx.reply(BotMessages.unauthorizedAccess);
-      return;
-    }
-
+    // Проверка прав администратора выполняется в middleware плагине
     stateManager.setState(userId, BotState.waitingGroupName);
     await ctx.reply(BotMessages.enterGroupName);
   }

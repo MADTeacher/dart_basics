@@ -1,6 +1,5 @@
 import 'package:televerse/televerse.dart';
 import '../../core/database/interfaces/i_discipline_dao.dart';
-import '../../core/middleware/admin_filter.dart';
 import '../../core/state/conversation_state.dart';
 import '../../shared/constants/messages.dart';
 
@@ -8,13 +7,11 @@ import '../../shared/constants/messages.dart';
 class AddDisciplineHandler {
   final Bot bot;
   final IDisciplineDao disciplineDao;
-  final AdminFilter adminFilter;
   final ConversationStateManager stateManager;
 
   AddDisciplineHandler({
     required this.bot,
     required this.disciplineDao,
-    required this.adminFilter,
     required this.stateManager,
   });
 
@@ -36,20 +33,16 @@ class AddDisciplineHandler {
   Future<void> _handleAddDisciplineCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
-
-    final isAdmin = adminFilter.isAdmin(userId);
-    if (!isAdmin) {
-      await ctx.reply(BotMessages.unauthorizedAccess);
-      return;
-    }
-
+    // Устанавливаем состояние ожидания ввода названия дисциплины
     stateManager.setState(userId, BotState.waitingDisciplineName);
+    // Отправляем сообщение с запросом названия дисциплины
     await ctx.reply(BotMessages.enterDisciplineName);
   }
 
   // Обработчик ввода названия дисциплины и ее
   // добавления в базу данных
   Future<void> _handleDisciplineName(Context ctx) async {
+    // Получаем ID пользователя и название дисциплины
     final userId = ctx.from?.id;
     final disciplineName = ctx.message?.text;
 
@@ -64,7 +57,9 @@ class AddDisciplineHandler {
 
     // Добавляем дисциплину
     await disciplineDao.add(disciplineName);
+    // Удаляем состояние ожидания ввода названия дисциплины
     stateManager.deleteState(userId);
+    // Отправляем сообщение о том, что дисциплина добавлена
     await ctx.reply(BotMessages.disciplineAdded);
   }
 }

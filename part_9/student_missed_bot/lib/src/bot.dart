@@ -2,6 +2,7 @@ import 'package:televerse/televerse.dart';
 import 'core/config/bot_config.dart';
 import 'core/database/database.dart';
 import 'core/middleware/admin_filter.dart';
+import 'core/middleware/admin_middleware_plugin.dart';
 import 'core/state/conversation_state.dart';
 
 import 'features/start/start_handler.dart';
@@ -32,8 +33,28 @@ class AttendanceBot {
 
   // Метод для регистрации всех обработчиков команд и фильтров
   void registerHandlers() {
+    // Первым устанавливаем middleware для проверки прав администратора
+    // Обратите внимание, что он должен быть установлен 
+    // ДО регистрации обработчиков команд
+    bot.use(AdminMiddleware(
+      adminFilter: adminFilter,
+      adminCommands: [
+        'addgroup',
+        'adddiscipline',
+        'discipline2group',
+        'addstudent',
+        'delstudent',
+        'presencecheck',
+        'fullreport',
+        'shortreport',
+        'interreport',
+      ],
+    ).handle);
+
     // Start handler
     // Команда на запуск бота
+    // Примечание: /start не включена в плагин, так как имеет особую логику
+    // для админа и не-админа (разные ответы)
     final startHandler = StartHandler(
       bot: bot,
       adminFilter: adminFilter,
@@ -45,7 +66,6 @@ class AttendanceBot {
     final addGroupHandler = AddGroupHandler(
       bot: bot,
       groupDao: db.groupDao,
-      adminFilter: adminFilter,
       stateManager: stateManager,
     );
     addGroupHandler.register();
@@ -55,7 +75,6 @@ class AttendanceBot {
     final addDisciplineHandler = AddDisciplineHandler(
       bot: bot,
       disciplineDao: db.disciplineDao,
-      adminFilter: adminFilter,
       stateManager: stateManager,
     );
     addDisciplineHandler.register();
@@ -65,7 +84,6 @@ class AttendanceBot {
       bot: bot,
       groupDao: db.groupDao,
       disciplineDao: db.disciplineDao,
-      adminFilter: adminFilter,
     );
     assignDisciplineHandler.register();
 
@@ -75,7 +93,6 @@ class AttendanceBot {
       bot: bot,
       groupDao: db.groupDao,
       studentDao: db.studentDao,
-      adminFilter: adminFilter,
       stateManager: stateManager,
     );
     addStudentHandler.register();
@@ -85,7 +102,6 @@ class AttendanceBot {
       bot: bot,
       groupDao: db.groupDao,
       studentDao: db.studentDao,
-      adminFilter: adminFilter,
     );
     deleteStudentHandler.register();
 
@@ -94,7 +110,6 @@ class AttendanceBot {
     final presenceCheckHandler = PresenceCheckHandler(
       bot: bot,
       db: db,
-      adminFilter: adminFilter,
     );
     presenceCheckHandler.register();
 
@@ -103,7 +118,6 @@ class AttendanceBot {
     final downloadReportHandler = DownloadReportHandler(
       bot: bot,
       db: db,
-      adminFilter: adminFilter,
       tempReportDir: config.tempReportDir,
     );
     downloadReportHandler.register();
@@ -113,7 +127,6 @@ class AttendanceBot {
     final interactiveReportHandler = InteractiveReportHandler(
       bot: bot,
       db: db,
-      adminFilter: adminFilter,
     );
     interactiveReportHandler.register();
 

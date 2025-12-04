@@ -27,15 +27,9 @@ Future<void> runBot() async {
     db: db,
     tempReportDir: config.tempReportDir,
     configDataPath: config.pathToConfigData,
-    isFirstRun: _isFirstRun(config.databaseName),
+    isFirstRun: _isFirstRun(config.dbPath),
   );
-
-  try {
-    await initializer.start();
-  } catch (e) {
-    print('ОШИБКА при инициализации базы данных: $e');
-    // Продолжаем работу даже если инициализация не удалась
-  }
+  await initializer.start();
 
   // Создаем и запускаем бота
   print('\nСоздание бота...');

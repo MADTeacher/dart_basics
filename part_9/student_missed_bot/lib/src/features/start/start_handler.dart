@@ -22,9 +22,8 @@ class StartHandler {
     final userId = ctx.from?.id;
     if (userId == null) return;
 
-    final isAdmin = adminFilter.isAdmin(userId);
-
-    if (isAdmin) {
+    // Проверяем, является ли пользователь администратором
+    if (adminFilter.isAdmin(userId)) {
       await _handleAdminStart(ctx);
     } else {
       await _handleNonAdminStart(ctx);
@@ -35,7 +34,7 @@ class StartHandler {
   Future<void> _handleAdminStart(Context ctx) async {
     final userId = ctx.from!.id;
 
-    // Устанавливаем команды бота для администратора
+    // Устанавливаем команды, которые будут доступны боту
     await ctx.api.setMyCommands([
       BotCommand(command: 'addstudent', description: 'Добавить студента'),
       BotCommand(command: 'adddiscipline', description: 'Добавить дисциплину'),
@@ -51,7 +50,7 @@ class StartHandler {
       BotCommand(command: 'delstudent', description: 'Удалить студента'),
     ], scope: BotCommandScopeChat(chatId: ChatID(userId)));
 
-    // Отправляем приветственное сообщение с меню
+    // Отправляем приветственное сообщение с меню в виде reply-клавиатуры
     await ctx.reply(
       BotMessages.startMessage,
       parseMode: ParseMode.html,

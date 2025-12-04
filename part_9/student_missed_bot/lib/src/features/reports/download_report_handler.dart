@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:televerse/televerse.dart';
 import '../../core/database/database.dart';
-import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
 import '../../shared/utils/inline_keyboard_helper.dart';
 import '../../core/utils/report_builders.dart';
@@ -13,46 +12,46 @@ enum ReportType { short, full }
 class DownloadReportHandler {
   final Bot bot;
   final SqliteDatabase db;
-  final AdminFilter adminFilter;
   final String tempReportDir;
 
   DownloadReportHandler({
     required this.bot,
     required this.db,
-    required this.adminFilter,
     required this.tempReportDir,
   });
 
   // Регистрируем handlers
   void register() {
+    // Обработчики для полного отчета (full)
     bot.command(
       'fullreport',
       (ctx) => _handleReportCommand(ctx, ReportType.full),
-    );
-    bot.command(
-      'shortreport',
-      (ctx) => _handleReportCommand(ctx, ReportType.short),
     );
     bot.hears(
       BotMessages.fullReport,
       (ctx) => _handleReportCommand(ctx, ReportType.full),
     );
-    bot.hears(
-      BotMessages.shortReport,
-      (ctx) => _handleReportCommand(ctx, ReportType.short),
-    );
-
     bot.callbackQuery(
       RegExp(r'^fullReport_'),
       (ctx) => _handleGroupSelection(ctx, ReportType.full),
     );
     bot.callbackQuery(
-      RegExp(r'^shortReport_'),
-      (ctx) => _handleGroupSelection(ctx, ReportType.short),
-    );
-    bot.callbackQuery(
       RegExp(r'^fullGrReport_'),
       (ctx) => _handleDisciplineSelection(ctx, ReportType.full),
+    );
+
+    // Обработчики для короткого отчета (short)
+    bot.command(
+      'shortreport',
+      (ctx) => _handleReportCommand(ctx, ReportType.short),
+    );
+    bot.hears(
+      BotMessages.shortReport,
+      (ctx) => _handleReportCommand(ctx, ReportType.short),
+    );
+    bot.callbackQuery(
+      RegExp(r'^shortReport_'),
+      (ctx) => _handleGroupSelection(ctx, ReportType.short),
     );
     bot.callbackQuery(
       RegExp(r'^shortGrReport_'),
@@ -65,44 +64,44 @@ class DownloadReportHandler {
     final userId = ctx.from?.id;
     if (userId == null) return;
 
-    final isAdmin = adminFilter.isAdmin(userId);
-    if (!isAdmin) {
-      await ctx.reply(BotMessages.unauthorizedAccess);
-      return;
-    }
-
+    // Получаем список групп
     final groups = await db.groupDao.getAll();
+    // Определяем префикс для callback data
+    // в зависимости от типа отчета
     final prefix = reportType == ReportType.full ? 'fullReport' : 'shortReport';
+    // Создаем клавиатуру для выбора группы
     final keyboard = InlineKeyboardBuilder.createGroupButtons(groups, prefix);
 
+    // Отправляем сообщение с клавиатурой
     await ctx.reply(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
   // Обработчик выбора группы
   Future<void> _handleGroupSelection(Context ctx, ReportType reportType) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
 
-    if (userId == null || callbackData == null) return;
-
+    // Разбираем callback data на части
+    // Проверяем, что callback data содержит 2 части
     final parts = callbackData.split('_');
     if (parts.length != 2) return;
 
     final groupId = int.tryParse(parts[1]);
     if (groupId == null) return;
-
+    // Получаем список дисциплин, назначенных группе
     final disciplines = await db.groupDao.getAssignedDisciplines(groupId);
-
+    // Проверяем, что группа имеет назначенные дисциплины
     if (disciplines.isEmpty) {
       await ctx.editMessageText(BotMessages.noAssignedDisciplines);
       return;
     }
 
+    // Если группа имеет только одну дисциплину,
+    // то сразусоздаем отчет
     if (disciplines.length == 1) {
-      // Если только одна дисциплина, сразу создаем отчет
       await _createReport(
         ctx,
-        userId,
+        ctx.from!.id,
         groupId,
         disciplines.first.id,
         reportType,
@@ -110,18 +109,21 @@ class DownloadReportHandler {
       return;
     }
 
-    // Показываем список дисциплин
+    // Создаем клавиатуру для выбора дисциплины,
+    // в зависимости от типа отчета
     final prefix = reportType == ReportType.full
         ? 'fullGrReport'
         : 'shortGrReport';
+    // Создаем клавиатуру для выбора дисциплины
     var keyboard = InlineKeyboard();
-
+    // Добавляем кнопки для каждой дисциплины
     for (final discipline in disciplines) {
       keyboard = keyboard
           .text(discipline.name, '${prefix}_${groupId}_${discipline.id}')
           .row();
     }
 
+    // Редактируем сообщение с клавиатурой
     await ctx.editMessageText(
       BotMessages.selectDiscipline,
       replyMarkup: keyboard,
@@ -133,11 +135,10 @@ class DownloadReportHandler {
     Context ctx,
     ReportType reportType,
   ) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
-
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
+    // Разбираем callback data на части
+    // Проверяем, что callback data содержит 3 части
     final parts = callbackData.split('_');
     if (parts.length != 3) return;
 
@@ -145,8 +146,8 @@ class DownloadReportHandler {
     final disciplineId = int.tryParse(parts[2]);
 
     if (groupId == null || disciplineId == null) return;
-
-    await _createReport(ctx, userId, groupId, disciplineId, reportType);
+    // Создаем отчет
+    await _createReport(ctx, ctx.from!.id, groupId, disciplineId, reportType);
   }
 
   // Обработчик создания отчета
@@ -157,6 +158,7 @@ class DownloadReportHandler {
     int disciplineId,
     ReportType reportType,
   ) async {
+    // Редактируем сообщение с текстом о начале создания отчета
     await ctx.editMessageText(BotMessages.startingReport);
 
     try {
@@ -182,13 +184,15 @@ class DownloadReportHandler {
       // Строим и сохраняем отчет
       await builder.buildReport();
       await builder.saveReport();
-
+      // Редактируем сообщение с текстом о готовности отчета
       await ctx.editMessageText(BotMessages.reportReady);
-
-      // Отправляем файл
+      
+      // Получаем путь к отчету
       final file = File(builder.getReportPath());
+      // Отправляем файл
       await ctx.replyWithDocument(InputFile.fromFile(file));
     } catch (e) {
+      // Редактируем сообщение с текстом о ошибке при создании отчета
       await ctx.editMessageText('Ошибка при создании отчета: $e');
     }
   }

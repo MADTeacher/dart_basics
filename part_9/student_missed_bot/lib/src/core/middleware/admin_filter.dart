@@ -11,3 +11,4 @@ class AdminFilter {
     return telegramId == config.defaultAdminId;
   }
 }
+

@@ -1,7 +1,6 @@
 import 'package:televerse/televerse.dart';
 import '../../core/database/interfaces/i_group_dao.dart';
 import '../../core/database/interfaces/i_student_dao.dart';
-import '../../core/middleware/admin_filter.dart';
 import '../../shared/constants/messages.dart';
 import '../../shared/utils/inline_keyboard_helper.dart';
 
@@ -10,7 +9,6 @@ class DeleteStudentHandler {
   final Bot bot;
   final IGroupDao groupDao;
   final IStudentDao studentDao;
-  final AdminFilter adminFilter;
 
   static const int pageSize = 7;
 
@@ -18,7 +16,6 @@ class DeleteStudentHandler {
     required this.bot,
     required this.groupDao,
     required this.studentDao,
-    required this.adminFilter,
   });
 
   // Регистрируем handlers
@@ -32,40 +29,36 @@ class DeleteStudentHandler {
   Future<void> _handleDeleteStudentCommand(Context ctx) async {
     final userId = ctx.from?.id;
     if (userId == null) return;
-
-    final isAdmin = adminFilter.isAdmin(userId);
-    if (!isAdmin) {
-      await ctx.reply(BotMessages.unauthorizedAccess);
-      return;
-    }
-
+    // Получаем список групп
     final groups = await groupDao.getAll();
+    // Создаем клавиатуру для выбора группы
     var keyboard = InlineKeyboard();
     for (final group in groups) {
       keyboard = keyboard
           .text(group.name, 'groupForDelClick_0_${group.id}')
           .row();
     }
-
+    // Отправляем сообщение с клавиатурой
     await ctx.reply(BotMessages.selectGroup, replyMarkup: keyboard);
   }
 
   // Обработчик выбора группы для удаления студента
   Future<void> _handleGroupSelection(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
-
+    final callbackData = ctx.callbackQuery!.data!;
+    // Разбираем callback data на части
     final parts = callbackData.split('_');
+    // Проверяем, что callback data содержит 3 части
     if (parts.length != 3) return;
-
+    // Получаем номер страницы и ID группы
     final paginator = int.tryParse(parts[1]) ?? 0;
     final groupId = int.tryParse(parts[2]);
+    // Проверяем, что ID группы не равны null
     if (groupId == null) return;
 
+    // Получаем список студентов группы
     final students = await studentDao.getByGroupId(groupId);
 
+    // Создаем клавиатуру для выбора студента
     final keyboard = InlineKeyboardBuilder.createPaginatedList(
       allItems: students,
       paginator: paginator,
@@ -76,6 +69,7 @@ class DeleteStudentHandler {
       nextPageCallback: 'groupForDelClick_${paginator + 1}_$groupId',
     );
 
+    // Редактируем сообщение с клавиатурой
     await ctx.editMessageText(
       BotMessages.selectStudentToDelete,
       replyMarkup: keyboard,
@@ -84,19 +78,18 @@ class DeleteStudentHandler {
 
   // Обработчик удаления студента
   Future<void> _handleStudentDeletion(Context ctx) async {
-    final userId = ctx.from?.id;
-    final callbackData = ctx.callbackQuery?.data;
-
-    if (userId == null || callbackData == null) return;
-
+    // Получаем callback data
+    final callbackData = ctx.callbackQuery!.data!;
+    // Разбираем callback data на части
+    // Проверяем, что callback data содержит 2 части
     final parts = callbackData.split('_');
     if (parts.length != 2) return;
 
     final studentId = int.tryParse(parts[1]);
     if (studentId == null) return;
-
+    // Удаляем студента
     await studentDao.deleteStudent(studentId);
-
+    // Редактируем сообщение 
     await ctx.editMessageText(BotMessages.studentDeleted);
   }
 }
